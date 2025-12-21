@@ -42,10 +42,24 @@ body {
 }
 
 .container {
-    max-width: 1200px;
-    margin: 0 auto;
+    width: 100%;
+    max-width: none;
+    margin: 0;
     padding: 0 20px;
     background: transparent;
+}
+
+/* Desktop view: limit width */
+@media (min-width: 769px) {
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+}
+
+/* Make desktop view the same for mobile */
+.mobile-container {
+    display: none !important;
 }
 
 /* Info Bar */
@@ -423,8 +437,7 @@ body {
     box-shadow: var(--shadow-sm);
     position: absolute;
     bottom: 10px;
-    left: 50%;
-    transform: translateX(-50%);
+    right: 10px;
     z-index: 10;
 }
 
@@ -769,7 +782,7 @@ body {
 /* Grid */
 .services-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 32px;
 }
 
