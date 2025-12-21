@@ -7,7 +7,7 @@ from django.shortcuts import redirect, render
 from django.contrib import messages
 from .forms import ContactForm
 from django.conf import settings
-from django.core.mail import send_mail, EmailMessage
+from django.core.mail import send_mail
 from .models import ContactMessage, QuoteMessage
 
 logger = logging.getLogger(__name__)
@@ -100,14 +100,13 @@ def contact(request):
             from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'munqitshwatashinga1@gmail.com')
 
             try:
-                email_msg = EmailMessage(
-                    subject=subject,
-                    body=body,
-                    from_email=from_email,
-                    to=[recipient],
-                    reply_to=[email]
+                result = send_mail(
+                    subject,
+                    body,
+                    from_email,
+                    [recipient],
+                    fail_silently=False
                 )
-                email_msg.send(fail_silently=False)
                 # Save to database
                 ContactMessage.objects.create(email=email, message=message_text)
                 messages.success(request, 'Message sent successfully!')
@@ -221,14 +220,13 @@ def request_quote(request):
 
     email_sent = False
     try:
-        email_msg = EmailMessage(
-            subject=subject,
-            body=body,
-            from_email=from_email,
-            to=[recipient],
-            reply_to=[email]
+        result = send_mail(
+            subject,
+            body,
+            from_email,
+            [recipient],
+            fail_silently=False
         )
-        email_msg.send(fail_silently=False)
         # Save to database
         QuoteMessage.objects.create(
             full_name=name,
