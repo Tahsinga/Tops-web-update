@@ -57,31 +57,15 @@ body {
     }
 }
 
-/* Make desktop view the same for mobile: hide mobile-specific sections
-   and force desktop sections to display so desktop images are used
-   on all screen sizes. Also ensure desktop images are responsive. */
-.mobile-container,
-.mobile-hero,
-.mobile-top-bar,
-.mobile-nav-bar {
-    display: none !important;
-}
-
-.desktop-container,
-.desktop-hero,
-.desktop-top-bar,
-.desktop-nav-bar {
-    display: block !important;
-}
-
-/* Ensure desktop images scale properly on small screens */
-.desktop-container img,
-.desktop-hero .hero-slideshow img,
-.desktop-hero img {
-    width: 100%;
-    height: auto;
-    object-fit: cover;
-    display: block;
+/* Mobile view: ensure images fit properly */
+@media (max-width: 768px) {
+    .mobile-container img,
+    .mobile-hero img {
+        width: 100%;
+        height: auto;
+        max-height: 200px; /* Limit height to fit better */
+        object-fit: cover;
+    }
 }
 
 /* Info Bar */
@@ -1366,6 +1350,15 @@ body {
     display: none;
 }
 
+@media (max-width: 768px) {
+    .hero-banner.mobile-hero {
+        display: flex;
+    }
+    .hero-banner.desktop-hero {
+        display: none;
+    }
+}
+
 .hero-banner-image {
     position: absolute;
     top: 0;
@@ -1396,6 +1389,17 @@ body {
     animation: fadeSlides 18s infinite;
 }
 
+.mobile-slide {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    animation: fadeSlidesMobile 9s infinite;
+}
+
+.mobile-slide:nth-child(1) { background-image: url('/static/images/Hero-BannerImages/imageTopBar2.jpg'); animation-delay: 0s; }
+.mobile-slide:nth-child(2) { background-image: url('/static/images/Hero-BannerImages/imageTopBar1.jpg'); animation-delay: 3s; }
+.mobile-slide:nth-child(3) { background-image: url('/static/images/Hero-BannerImages/imageTopBar.jpg'); animation-delay: 6s; }
+
 .hero-slide:nth-child(1) { animation-delay: 0s; }
 .hero-slide:nth-child(2) { animation-delay: 3s; }
 .hero-slide:nth-child(3) { animation-delay: 6s; }
@@ -1404,6 +1408,13 @@ body {
 .hero-slide:nth-child(6) { animation-delay: 15s; }
 
 @keyframes fadeSlides {
+    0% { opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes fadeSlidesMobile {
     0% { opacity: 0; }
     10% { opacity: 1; }
     90% { opacity: 1; }
