@@ -59,6 +59,9 @@ body {
 
 /* Mobile view: ensure images fit properly */
 @media (max-width: 768px) {
+    .container {
+        padding: 0;
+    }
     .mobile-container img,
     .mobile-hero img {
         width: 100%;
