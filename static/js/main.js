@@ -78,24 +78,26 @@ function initMain() {
         });
     });
 
-    // Form submission
-    document.querySelector('.contact-form')?.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
+    // Form submission: only intercept if form has no action (keep client-side simulation for local forms)
+    document.querySelectorAll('.contact-form').forEach(form => {
+        form.addEventListener('submit', function (e) {
+            const action = form.getAttribute('action') || '';
+            if (!action || action.trim() === '' || action.trim() === '#') {
+                // no server action defined — simulate submission (legacy behavior)
+                e.preventDefault();
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const originalText = submitBtn ? submitBtn.textContent : 'Submit';
+                if (submitBtn) { submitBtn.textContent = 'Sending...'; submitBtn.disabled = true; }
 
-        // Simulate form submission
-        const submitBtn = this.querySelector('button[type="submit"]');
-        const originalText = submitBtn.textContent;
-
-        submitBtn.textContent = 'Sending...';
-        submitBtn.disabled = true;
-
-        setTimeout(() => {
-            alert('Thank you! Your quote request has been submitted. We will contact you within 24 hours.');
-            this.reset();
-            submitBtn.textContent = originalText;
-            submitBtn.disabled = false;
-        }, 1500);
+                setTimeout(() => {
+                    alert('Thank you! Your quote request has been submitted. We will contact you within 24 hours.');
+                    this.reset();
+                    if (submitBtn) { submitBtn.textContent = originalText; submitBtn.disabled = false; }
+                }, 1500);
+            } else {
+                // form has an action — allow normal submission to server
+            }
+        });
     });
 
     // Navbar scroll effect

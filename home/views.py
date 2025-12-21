@@ -2,6 +2,11 @@ from django.shortcuts import render
 import logging
 import os
 from django.http import HttpResponse, Http404
+from django.shortcuts import redirect, render
+from django.contrib import messages
+from .forms import ContactForm
+from django.conf import settings
+from django.core.mail import send_mail
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +70,32 @@ def about(request):
     return render(request, 'home/about.html', {'title': 'About Us'})
 
 def contact(request):
-    return render(request, 'home/contact.html', {'title': 'Contact Us'})
+    # contact page with a simple contact form that sends an email
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            message_text = form.cleaned_data['message']
+
+            subject = 'New Contact Message'
+            body = f"From: {email}\n\n{message_text}"
+
+            recipient = getattr(settings, 'CONTACT_RECIPIENT_EMAIL', 'munqitshwatashinga1@gmail.com')
+            from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or email
+
+            try:
+                send_mail(subject, body, from_email, [recipient], fail_silently=False)
+                messages.success(request, 'Message sent successfully!')
+                logger.info('Contact form sent by %s', email)
+            except Exception as exc:
+                logger.exception('Failed to send contact email: %s', exc)
+                messages.error(request, 'Failed to send message. Please try again later.')
+
+            return redirect('contact')
+    else:
+        form = ContactForm()
+
+    return render(request, 'home/contact.html', {'title': 'Contact Us', 'form': form})
 
 def starlink(request):
     return render(request, 'home/starlink.html', {'title': 'Starlink Services'})
@@ -114,3 +144,41 @@ def open_template(request, filename):
         content = fh.read()
 
     return HttpResponse(content, content_type='text/plain')
+
+
+def request_quote(request):
+    """Handle quote request form POST and send an email to test address."""
+    if request.method != 'POST':
+        return redirect('home')
+
+    name = request.POST.get('full_name', 'No name')
+    email = request.POST.get('email', 'no-reply@example.com')
+    phone = request.POST.get('phone', 'N/A')
+    service = request.POST.get('service', 'General Enquiry')
+    message = request.POST.get('message', '')
+
+    subject = f"Quote Request: {service} from {name}"
+    body = (
+        f"You have received a new quote request:\n\n"
+        f"Name: {name}\n"
+        f"Email: {email}\n"
+        f"Phone: {phone}\n"
+        f"Service: {service}\n\n"
+        f"Message:\n{message}\n"
+    )
+
+    # Recipient for testing (corrected)
+    recipient = 'munqitshwatashinga1@gmail.com'
+
+    # Determine from email
+    from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or email
+
+    email_sent = False
+    try:
+        send_mail(subject, body, from_email, [recipient], fail_silently=False)
+        email_sent = True
+        logger.info('Quote email sent to %s', recipient)
+    except Exception as exc:
+        logger.exception('Failed to send quote email: %s', exc)
+
+    return render(request, 'home/quote_sent.html', {'title': 'Request Sent', 'name': name, 'email_sent': email_sent})

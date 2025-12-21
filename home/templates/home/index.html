@@ -60,19 +60,17 @@
     
     <div class="top-bar desktop-top-bar">
         <!-- Contact Info -->
-        <div class="contact-info" style="margin-right: 50px;">
+        <div class="contact-info" style="margin-right: 20px;">
+            <i class="fas fa-user"></i>
+            <span>Emmanuel Ratisai</span>
+        </div>
+        <div class="contact-info" style="margin-right: 20px;">
             <i class="fas fa-phone-alt"></i>
-            <span>+263 786 395 484</span>
+            <span>0772675634</span>
         </div>
         <div class="contact-info">
             <i class="fas fa-envelope"></i>
-            <span>info@securevisionpro.com</span>
-        </div>
-        <div class="contact-info">
-            <a href="https://www.google.com/maps?q=Harare,Zimbabwe" target="_blank" style="color: #00f5ff; text-decoration: none;">
-                <i class="fas fa-map-marker-alt"></i>
-                <span>Harare, Zimbabwe</span>
-            </a>
+            <span>topssystems1@gmail.com</span>
         </div>
         <!-- CTA -->
         <a href="#quote" class="cta-btn">
@@ -82,15 +80,13 @@
 
     <div class="top-bar mobile-top-bar">
         <!-- Mobile Contact Info - Simplified -->
-        <div class="contact-info">
-            <i class="fas fa-phone-alt"></i>
-            <span>+263 786 395 484</span>
+        <div class="contact-info" style="margin-right: 10px;">
+            <i class="fas fa-user"></i>
+            <span>Emmanuel Ratisai</span>
         </div>
         <div class="contact-info">
-            <a href="https://www.google.com/maps?q=Harare,Zimbabwe" target="_blank" style="color: #00f5ff; text-decoration: none;">
-                <i class="fas fa-map-marker-alt"></i>
-                <span>Location</span>
-            </a>
+            <i class="fas fa-phone-alt"></i>
+            <span>0772675634</span>
         </div>
         <!-- CTA -->
         <a href="#quote" class="cta-btn">
@@ -415,12 +411,6 @@
                     <div class="service-glow"></div>
                     <h3>CCTV System</h3>
                     <p>Professional CCTV installation and monitoring for comprehensive surveillance.</p>
-                    <div class="service-details">
-                        <ul>
-                            <li>HD & low-light cameras with remote viewing</li>
-                            <li>Options for local or cloud recording</li>
-                        </ul>
-                    </div>
                     <button id="btn-cctv-mob" type="button" data-url="{% url 'cctv' %}" class="service-btn">Learn More</button>
                     
                 </div>
@@ -434,7 +424,6 @@
                     <div class="service-details">
                         <ul>
                             <li>Tailored perimeter zoning with alarm integration</li>
-                            <li>Low-maintenance and solar-capable setups</li>
                         </ul>
                     </div>
                     <button id="btn-electric_fence-mob" type="button" data-url="{% url 'electric_fence' %}" class="service-btn">Learn More</button>
@@ -450,7 +439,6 @@
                     <div class="service-details">
                         <ul>
                             <li>Safety sensors, remote control and scheduled operation</li>
-                            <li>Integration with access control and intercoms</li>
                         </ul>
                     </div>
                     <button id="btn-gate_automation-mob" type="button" data-url="{% url 'gate_automation' %}" class="service-btn">Learn More</button>
@@ -466,7 +454,6 @@
                     <div class="service-details">
                         <ul>
                             <li>Real-time location, geo-fencing and route history</li>
-                            <li>Driver behaviour and maintenance alerts</li>
                         </ul>
                     </div>
                     <button id="btn-vehicle_tracking-mob" type="button" data-url="{% url 'vehicle_tracking' %}" class="service-btn">Learn More</button>
@@ -482,7 +469,6 @@
                     <div class="service-details">
                         <ul>
                             <li>Two-way video/audio, mobile notifications and access release</li>
-                            <li>Scalable intercom networks for multi-entrance sites</li>
                         </ul>
                     </div>
                     <button id="btn-video_audio_intercom-mob" type="button" data-url="{% url 'video_audio_intercom' %}" class="service-btn">Learn More</button>
@@ -826,18 +812,19 @@
                 <p>Contact us for a free consultation and quote</p>
             </div>
             
-            <form class="contact-form" style="background-color: #333; color: white;">
+            <form class="contact-form" action="{% url 'request_quote' %}" method="post" style="background-color: #333; color: white;">
+                {% csrf_token %}
                 <div class="form-group">
-                    <input type="text" placeholder="Full Name" required>
+                    <input name="full_name" type="text" placeholder="Full Name" required>
                 </div>
                 <div class="form-group">
-                    <input type="email" placeholder="Email Address" required>
+                    <input name="email" type="email" placeholder="Email Address" required>
                 </div>
                 <div class="form-group">
-                    <input type="tel" placeholder="Phone Number">
+                    <input name="phone" type="tel" placeholder="Phone Number">
                 </div>
                 <div class="form-group">
-                    <select>
+                    <select name="service">
                         <option value="">Select Service</option>
                         <option value="camera">Camera Installation</option>
                         <option value="starlink">Starlink Setup</option>
@@ -846,10 +833,41 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <textarea placeholder="Describe your project needs..." rows="5" required></textarea>
+                    <textarea name="message" placeholder="Describe your project needs..." rows="5" required></textarea>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Request Free Quote</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%">Request Free Quote</button>
             </form>
+
+            <!-- Location Map -->
+            <div class="location-map" style="margin-top: 40px; text-align: center; width: 100%;">
+                <h3 style="color: rgb(0, 0, 0); margin-bottom: 20px; font-size: 32px; font-style: 900px;">Our Location</h3>
+                <div style="margin-bottom: 20px; text-align: center;">
+                    <div style="color: #000000; font-size: 0.9rem;">
+                        <strong>Contact Person</strong><br>
+                        Name: Emmanuel Ratisai<br>
+                        <strong>Phone Numbers</strong><br>
+                        Mobile 1: 0772675634<br>
+                        Mobile 2: 0712071615<br>
+                        <strong>Email Address</strong><br>
+                        Email: topssystems1@gmail.com
+                    </div>
+                </div>
+                <div style="width: 100%; margin: 0 auto;">
+                    <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1000!2d30.821650!3d-20.064991!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0:0x0!2zMjDCsDA0JzA0LjQiUyAzMMKwNDknMjkuNiJF!5e0!3m2!1sen!2szw!4v1638360000000!5m2!1sen!2szw" 
+                        width="100%" 
+                        height="400" 
+                        style="border:0; border-radius: 10px; max-width: 100%;" 
+                        allowfullscreen="" 
+                        loading="lazy">
+                    </iframe>
+                </div>
+                <p style="color: white; margin-top: 15px;">
+                    <a href="https://maps.app.goo.gl/mD6CA8ePGnCKRR9x5" target="_blank" style="color: #00d4ff; text-decoration: none;">
+                        <i class="fas fa-map-marker-alt"></i> View on Google Maps
+                    </a>
+                </p>
+            </div>
         </div>
 
         <div class="container mobile-container">
@@ -858,18 +876,19 @@
                 <p style="font-size: 1rem;">Contact us for a free consultation</p>
             </div>
             
-            <form class="contact-form" style="background-color: #333; color: white; padding: 20px;">
+            <form class="contact-form" action="{% url 'request_quote' %}" method="post" style="background-color: #333; color: white; padding: 20px;">
+                {% csrf_token %}
                 <div class="form-group">
-                    <input type="text" placeholder="Full Name" required style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #555; border-radius: 5px; background: #444; color: white;">
+                    <input name="full_name" type="text" placeholder="Full Name" required style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #555; border-radius: 5px; background: #444; color: white;">
                 </div>
                 <div class="form-group">
-                    <input type="email" placeholder="Email Address" required style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #555; border-radius: 5px; background: #444; color: white;">
+                    <input name="email" type="email" placeholder="Email Address" required style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #555; border-radius: 5px; background: #444; color: white;">
                 </div>
                 <div class="form-group">
-                    <input type="tel" placeholder="Phone Number" style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #555; border-radius: 5px; background: #444; color: white;">
+                    <input name="phone" type="tel" placeholder="Phone Number" style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #555; border-radius: 5px; background: #444; color: white;">
                 </div>
                 <div class="form-group">
-                    <select style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #555; border-radius: 5px; background: #444; color: white;">
+                    <select name="service" style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #555; border-radius: 5px; background: #444; color: white;">
                         <option value="">Select Service</option>
                         <option value="camera">Camera Installation</option>
                         <option value="starlink">Starlink Setup</option>
@@ -878,10 +897,46 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <textarea placeholder="Describe your project needs..." rows="4" required style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #555; border-radius: 5px; background: #444; color: white; resize: vertical;"></textarea>
+                    <textarea name="message" placeholder="Describe your project needs..." rows="4" required style="width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #555; border-radius: 5px; background: #444; color: white; resize: vertical;"></textarea>
                 </div>
                 <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 1.1rem;">Request Free Quote</button>
             </form>
+
+            <!-- Location Map -->
+            <div class="location-map" style="margin-top: 40px; text-align: center; width: 100%;">
+                <h3 style="color: rgb(0, 0, 0); margin-bottom: 20px; font-weight: bolder;">OUR LOCATION</h3>
+                <div style="margin-bottom: 20px;">
+                    <p style="color: rgb(0, 0, 0); font-size: 1.1rem; margin: 0; font-weight: 500;">
+                        <i class="fas fa-map-marker-alt" style="color: #00d4ff; margin-right: 8px;"></i>
+                        Flo Petroleum, WRMC+XMJ, Masvingo
+                    </p>
+                    <div style="color: #000000; font-size: 0.9rem; margin: 5px 0 0 0;">
+                        <strong>Contact Person</strong><br>
+                        Name: Emmanuel Ratisai<br>
+                        <strong>Phone Numbers</strong><br>
+                        Mobile 1: 0772675634<br>
+                        Mobile 2: 0712071615<br>
+                        <strong>Email Address</strong><br>
+                        Email: topssystems1@gmail.com
+                    </div>
+                </div>
+                <div style="width: 100%; margin: 0 auto;">
+                    <iframe 
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1000!2d30.821650!3d-20.064991!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0:0x0!2zMjDCsDA0JzA0LjQiUyAzMMKwNDknMjkuNiJF!5e0!3m2!1sen!2szw!4v1638360000000!5m2!1sen!2szw" 
+                        width="100%" 
+                        height="400" 
+                        style="border:0; border-radius: 10px; max-width: 100%;" 
+                        allowfullscreen="" 
+                        loading="lazy"
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+                <p style="color: white; margin-top: 15px;">
+                    <a href="https://maps.app.goo.gl/mD6CA8ePGnCKRR9x5" target="_blank" style="color: #00d4ff; text-decoration: none;">
+                        <i class="fas fa-external-link-alt"></i> Open in Google Maps
+                    </a>
+                </p>
+            </div>
         </div>
     </section>
 
@@ -917,9 +972,10 @@
                 <div class="footer-section">
                     <h3>Contact Info</h3>
                     <ul>
-                        <li><i class="fas fa-map-marker-alt"></i> 123 Security St, Tech City</li>
-                        <li><i class="fas fa-phone"></i> (555) 123-4567</li>
-                        <li><i class="fas fa-envelope"></i> info@securevisionpro.com</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Flo Petroleum, WRMC+XMJ, Masvingo</li>
+                        <li><i class="fas fa-user"></i> Emmanuel Ratisai</li>
+                        <li><i class="fas fa-phone"></i> 0772675634 / 0712071615</li>
+                        <li><i class="fas fa-envelope"></i> topssystems1@gmail.com</li>
                         <li><i class="fas fa-clock"></i> Mon-Fri: 8am-6pm</li>
                     </ul>
                 </div>
@@ -971,9 +1027,10 @@
                 <div class="footer-section">
                     <h3 style="font-size: 1.3rem;">Contact Info</h3>
                     <ul style="text-align: center;">
-                        <li style="margin-bottom: 8px;"><i class="fas fa-map-marker-alt"></i> 123 Security St, Tech City</li>
-                        <li style="margin-bottom: 8px;"><i class="fas fa-phone"></i> (555) 123-4567</li>
-                        <li style="margin-bottom: 8px;"><i class="fas fa-envelope"></i> info@securevisionpro.com</li>
+                        <li style="margin-bottom: 8px;"><i class="fas fa-map-marker-alt"></i> Flo Petroleum, WRMC+XMJ, Masvingo</li>
+                        <li style="margin-bottom: 8px;"><i class="fas fa-user"></i> Emmanuel Ratisai</li>
+                        <li style="margin-bottom: 8px;"><i class="fas fa-phone"></i> 0772675634 / 0712071615</li>
+                        <li style="margin-bottom: 8px;"><i class="fas fa-envelope"></i> topssystems1@gmail.com</li>
                         <li><i class="fas fa-clock"></i> Mon-Fri: 8am-6pm</li>
                     </ul>
                 </div>

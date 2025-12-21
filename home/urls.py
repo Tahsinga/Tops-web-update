@@ -14,5 +14,6 @@ urlpatterns = [
     path('mantrap/', views.mantrap, name='mantrap'),
     path('vehicle_tracking/', views.vehicle_tracking, name='vehicle_tracking'),
     path('video_audio_intercom/', views.video_audio_intercom, name='video_audio_intercom'),
+    path('request-quote/', views.request_quote, name='request_quote'),
     path('open-template/<str:filename>/', views.open_template, name='open_template'),
 ]
