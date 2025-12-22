@@ -73,40 +73,36 @@ def about(request):
 
 
 #############################################################################
-import datetime
-import logging
-from django.shortcuts import render, redirect
-from django.contrib import messages
-from django.conf import settings
-from django.core.mail import EmailMessage
-from django.http import HttpResponse, Http404
-from .forms import ContactForm
-from .models import ContactMessage  # add QuoteMessage if it exists
-
+# Keep imports consolidated at top; no need to call django.setup() here.
 logger = logging.getLogger(__name__)
 
 def request_quote(request):
     if request.method == 'POST':
         form = ContactForm(request.POST)
         if form.is_valid():
-            full_name = form.cleaned_data['full_name']
-            email = form.cleaned_data['email']
-            phone = form.cleaned_data['phone']
-            service = form.cleaned_data['service']
-            message_text = form.cleaned_data['message']
+            full_name = form.cleaned_data.get('full_name')
+            email = form.cleaned_data.get('email')
+            phone = form.cleaned_data.get('phone')
+            service = form.cleaned_data.get('service')
+            message_text = form.cleaned_data.get('message')
 
+            # Email content
             subject = f'New Quote Request from {full_name}'
             timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             body = (
                 f"NEW QUOTE REQUEST RECEIVED\n"
                 f"=============================\n\n"
                 f"CUSTOMER DETAILS:\n"
+                f"----------------\n"
                 f"Full Name: {full_name}\n"
-                f"Email: {email}\n"
-                f"Phone: {phone}\n"
-                f"Service: {service}\n\n"
-                f"MESSAGE:\n{message_text}\n\n"
-                f"---\nTimestamp: {timestamp}"
+                f"Email Address: {email}\n"
+                f"Phone Number: {phone}\n"
+                f"Requested Service: {service}\n\n"
+                f"MESSAGE:\n"
+                f"--------\n"
+                f"{message_text}\n\n"
+                f"---\n"
+                f"Timestamp: {timestamp}"
             )
 
             recipient = getattr(settings, 'CONTACT_RECIPIENT_EMAIL', 'munqitshwatashinga1@gmail.com')
@@ -121,7 +117,9 @@ def request_quote(request):
                     reply_to=[email] if email else None
                 )
                 email_msg.send(fail_silently=False)
+                print('✅ Email sent successfully')  # Terminal feedback
 
+                # Save to database
                 ContactMessage.objects.create(
                     full_name=full_name,
                     email=email,
@@ -134,14 +132,16 @@ def request_quote(request):
                 logger.info('Quote request sent by %s', email)
 
             except Exception as exc:
+                print('❌ Failed to send email:', str(exc))  # Terminal feedback
                 logger.exception('Failed to send quote email: %s', exc)
                 messages.error(request, 'Failed to send your request. Please try again later.')
 
-            return redirect('quote_sent')
+            return redirect('request_quote')
     else:
         form = ContactForm()
 
     return render(request, 'home/contact.html', {'title': 'Request a Quote', 'form': form})
+
 def starlink(request):
     return render(request, 'home/starlink.html', {'title': 'Starlink Services'})
 
