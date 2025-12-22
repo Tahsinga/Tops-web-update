@@ -1,5 +1,17 @@
 # Camera Installation Web
 
+This project is a Django site for a camera/security installation business.
+
+## SEO & Production Checklist
+
+- Set `DEBUG=False` in production (use environment variable `DEBUG=False`).
+- Ensure you do NOT include `<meta name="robots" content="noindex">` in production templates.
+- Robots file is at `static/robots.txt` and allows crawling; update the `Sitemap:` URL if you change domains.
+- Sitemap is available at `/sitemap.xml`. Add the site to Google Search Console (URL prefix), verify ownership, and submit `/sitemap.xml`.
+
+If you'd like, I can also update templates to use a shared `base.html` to centralize the head/meta tags.
+# Camera Installation Web
+
 A Django web application for managing camera installations.
 
 ## Project Setup

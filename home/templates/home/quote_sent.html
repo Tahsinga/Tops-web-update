@@ -9,7 +9,8 @@
 </head>
 <body>
     <div style="max-width:700px;margin:80px auto;padding:30px;text-align:center;background:#fff;border-radius:8px;box-shadow:0 8px 30px rgba(0,0,0,0.08);">
-        {% if email_sent %}
+    <title>{{ title }}</title>
+    {% include 'home/_seo_meta.html' %}
             <h2>Thank you, {{ name }}!</h2>
             <p>Your quote request has been received. We will contact you shortly.</p>
         {% else %}
