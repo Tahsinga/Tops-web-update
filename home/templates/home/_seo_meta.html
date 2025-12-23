@@ -28,9 +28,60 @@
 <script type="application/ld+json">
 {
 	"@context": "https://schema.org",
-	"@type": "Organization",
-	"name": "Top Systems",
+	"@type": "LocalBusiness",
+	"name": "Tops Systems",
+	"description": "Professional CCTV, security systems, access control and Starlink installation in Zimbabwe",
 	"url": "{{ request.scheme }}://{{ request.get_host }}",
-	"logo": "{{ request.scheme }}://{{ request.get_host }}{% static 'images/logo.png' %}"
+	"logo": "{{ request.scheme }}://{{ request.get_host }}{% static 'images/logo.png' %}",
+	"image": "{{ request.scheme }}://{{ request.get_host }}{% static 'images/og-image.png' %}",
+	"telephone": ["+263772675634", "+263712071615"],
+	"email": "topssystems1@gmail.com",
+	"address": {
+		"@type": "PostalAddress",
+		"addressCountry": "ZW",
+		"addressRegion": "Harare"
+	},
+	"geo": {
+		"@type": "GeoCoordinates",
+		"latitude": "-20.0650273",
+		"longitude": "30.8216485"
+	},
+	"contactPoint": {
+		"@type": "ContactPoint",
+		"telephone": "+263772675634",
+		"contactType": "customer service",
+		"availableLanguage": "English"
+	},
+	"sameAs": [],
+	"hasOfferCatalog": {
+		"@type": "OfferCatalog",
+		"name": "Security & Connectivity Services",
+		"itemListElement": [
+			{
+				"@type": "Offer",
+				"itemOffered": {
+					"@type": "Service",
+					"name": "CCTV Installation",
+					"description": "Professional CCTV camera installation and monitoring systems"
+				}
+			},
+			{
+				"@type": "Offer",
+				"itemOffered": {
+					"@type": "Service",
+					"name": "Access Control Systems",
+					"description": "Advanced access control systems for secure entry management"
+				}
+			},
+			{
+				"@type": "Offer",
+				"itemOffered": {
+					"@type": "Service",
+					"name": "Starlink Setup",
+					"description": "High-speed satellite internet installation and support"
+				}
+			}
+		]
+	}
 }
 </script>
