@@ -94,7 +94,7 @@ body {
         width: 100%;
         height: auto;
         max-height: 200px; /* Limit height to fit better */
-        object-fit: cover;
+        object-fit: contain;
     }
 }
 
@@ -1375,10 +1375,10 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-size: cover;
+    background-image: url('../images/Hero-BannerImages/imageTopBar3.jpg');
+    background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
-    animation: backgroundSlides 18s infinite;
 }
 
 @keyframes backgroundSlides {
@@ -1398,7 +1398,8 @@ body {
 
 .hero-banner.mobile-hero {
     animation: none;
-    background-image: url('../images/Hero-BannerImages/imageTopBar6.webp');
+    background-image: url('../images/Hero-BannerImages/imageTopBar3.jpg');
+    background-size: contain;
 }
 
 @keyframes backgroundSlidesMobile {
