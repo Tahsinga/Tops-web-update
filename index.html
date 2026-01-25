@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -97,8 +96,9 @@
 	}
 }
 </script>
-    <link rel="stylesheet" href="/static/css/style.min.css">
+    <link rel="stylesheet" href="/static/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <!-- Preload critical resources -->
@@ -111,8 +111,8 @@
         /* Critical above-the-fold styles */
         body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', 'Roboto', sans-serif; }
         .hero-banner { background: url('/static/images/hero-background.jpg') no-repeat center center; background-size: cover; display: flex; align-items: center; }
-        .hero-title { font-size: 3.5rem; font-weight: 800; color: black; margin-bottom: 1rem; }
-        .hero-subtitle { font-size: 1.3rem; color: rgba(255,255,255,0.9); margin-bottom: 2rem; }
+        .hero-title { font-size: 7.5rem; font-weight: 900; color: black; margin-bottom: 1rem; }
+        .hero-subtitle { font-size: 1.12rem; color: rgba(255,255,255,0.9); margin-bottom: 2rem; }
     </style>
 
     <style>
@@ -171,39 +171,6 @@
 </head>
 
 <body>
-    
-    <!-- <div class="top-bar desktop-top-bar">
-          <div class="contact-info" style="margin-right: 20px;">
-            <i class="fas fa-user"></i>
-            <span>Emmanuel Ratisai</span>
-        </div>
-        <div class="contact-info" style="margin-right: 20px;">
-            <i class="fas fa-phone-alt"></i>
-            <span>0772675634</span>
-        </div>
-        <div class="contact-info">
-            <i class="fas fa-envelope"></i>
-            <span>topssystems1@gmail.com</span>
-        </div>
-        <a href="#quote" class="cta-btn">
-            <i class="fas fa-comments"></i> Contact Us
-        </a>
-    </div> -->
-<!-- 
-    <div class="top-bar mobile-top-bar">
-        <div class="contact-info" style="margin-right: 10px;">
-            <i class="fas fa-user"></i>
-            <span>Emmanuel Ratisai</span>
-        </div>
-        <div class="contact-info">
-            <i class="fas fa-phone-alt"></i>
-            <span>0772675634</span>
-        </div>
-        <a href="#quote" class="cta-btn">
-            <i class="fas fa-comments"></i> Contact
-        </a>
-    </div> -->
-
     <div class="nav-bar desktop-nav-bar" style="justify-content: center;">
         <!-- Navigation -->
         <nav class="nav-links">
@@ -685,7 +652,7 @@
     </style>
 
     <main>
-    <section class="hero-banner desktop-hero" id="home" style="height: 580px;">
+    <section class="hero-banner desktop-hero" id="home" style="height: 680px; margin-bottom: 10px;">
         <div class="hero-banner-overlay"></div>
         
         <!-- Desktop Hero Content -->
@@ -699,15 +666,9 @@
                     <span class="feature-pill">Starlink Connectivity</span>
                     <span class="feature-pill">24/7 Monitoring</span>
                     <span class="feature-pill">Commercial & Residential</span>
-                </div>
-
-                <div class="hero-cta-buttons">
-                    <a href="tel:+263772675634" class="cta-button cta-call">
-                        <i class="fas fa-phone"></i> Call Now: +263 772 675 634
-                    </a>
-                    <a href="#quote" class="cta-button cta-quote">
-                        <i class="fas fa-file-alt"></i> Get Quotation
-                    </a>
+                    <span class="feature-pill">All Security Services</span>
+                    <span class="feature-pill" style="background-color: #ff006e;">Call Now: +263 772 675 634</span>
+                    <span class="feature-pill" style="background-color: #0056b3;">Get Quotationl</span>
                 </div>
             </div>
         </div>
@@ -727,6 +688,9 @@
                     <span class="feature-pill">Starlink Connectivity</span>
                     <span class="feature-pill">24/7 Monitoring</span>
                     <span class="feature-pill">Commercial & Residential</span>
+                    <span class="feature-pill">All Security Services</span>
+                    <span class="feature-pill" style="background-color: #ff006e;">Call Now: +263 772 675 634</span>
+                    <span class="feature-pill" style="background-color: #0056b3;">Get Quotationl</span>
                 </div>
 
                 <div class="hero-cta-buttons">
@@ -747,7 +711,7 @@
         <div class="container desktop-container">
             <div class="services-header">
                 <div style="text-align: center; margin-bottom: 60px;">
-                    <h2 style="margin: 0 0 20px 0; font-size: 3rem; font-weight: 900; background: linear-gradient(135deg, #0066ff 0%, #00d4ff 50%, #ff006e 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-transform: uppercase; letter-spacing: 2px;">Transform Your Security & Connectivity</h2>
+                    <h2 class="services-title">OUR SERVICES</h2>
                     <p style="margin: 0; font-size: 1.3rem; color: var(--gray); line-height: 1.8; font-weight: 500; max-width: 800px; margin: 0 auto;">Empower your security with cutting-edge technology that delivers unparalleled protection and peace of mind. Elevate your connectivity with reliable Starlink solutions that keep you connected anywhere in the world.</p>
                 </div>
             </div>
@@ -855,7 +819,7 @@
 
         <div class="container mobile-container">
             <div class="services-header">
-                <h2 style="margin: 0 0 20px 0; font-size: 2.2rem; font-weight: 900; background: linear-gradient(135deg, #0066ff 0%, #00d4ff 50%, #ff006e 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; text-transform: uppercase; letter-spacing: 2px; text-align: center;">Transform Your Security & Connectivity</h2>
+                <h2 class="services-title" style="text-align:center;">OUR SERVICES</h2>
                 <div style="text-align: center; margin-bottom: 40px;">
                     <p style="margin: 0; font-size: 1.1rem; color: var(--gray); line-height: 1.8; font-weight: 500;">Empower your security with cutting-edge technology that delivers unparalleled protection and peace of mind. Elevate your connectivity with reliable Starlink solutions that keep you connected anywhere in the world.</p>
                 </div>
@@ -958,6 +922,7 @@
             <div class="section-title" style="display: grid; grid-template-columns: 1fr 2fr; gap: 40px; align-items: center; margin-bottom: 60px;">
                 <h2 style="margin: 0; font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, #0066ff 0%, #00d4ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">Recent Projects</h2>
                 <div style="text-align: left;">
+                    <h2 style="margin: 0; font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, #0066ff 0%, #00d4ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; align-items: center;">Recent Projects</h2>
                     <p style="margin: 0 0 8px 0; font-size: 1.1rem; color: var(--gray); line-height: 1.6;">Discover our proven track record of excellence</p>
                     <p style="margin: 0; font-size: 1.1rem; color: var(--gray); line-height: 1.6; font-weight: 500;">in delivering exceptional security solutions.</p>
                 </div>
@@ -1174,9 +1139,9 @@
                 <p style="margin: 0 0 8px 0; font-size: 1.1rem; color: var(--gray); line-height: 1.6;">Experience the future of security and connectivity</p>
                 <p style="margin: 0; font-size: 1.1rem; color: var(--gray); line-height: 1.6; font-weight: 500;">where innovation meets excellence in ways that defy imagination.</p>
             </div>
-        </div>            <div class="about-content" style="display: block; max-width: none;">
-                <div class="about-text" style="width: 100%; max-width: none; text-align: justify; padding-left: 20px; padding-right: 20px;">
-                    <h3 style="font-size: 1.8rem; margin-bottom: 20px; color: var(--secondary); text-align: center;">🚀 Out-of-This-World Security & Connectivity Solutions</h3>
+        </div>            <div class="about-content" style="display: block; max-width: none; text-align: justify; padding-left: 20px; padding-right: 20px;">
+                <div class="about-text" style="width: 100%; max-width: none;">
+                    <h3 style="font-size: 1.8rem; margin-bottom: 20px; color: var(--secondary); text-align: center;" data-editable="true">🚀 Out-of-This-World Security & Connectivity Solutions</h3>
                     <p style="margin-bottom: 20px; color: var(--gray); font-size: 1.1rem; line-height: 1.7;">
                         Welcome to the future of security and connectivity! At TOPS SYSTEMS, we're not just installing cameras and setting up networks — we're crafting impenetrable fortresses of protection and launching your connectivity into the stratosphere. Our cutting-edge expertise transforms ordinary spaces into smart, secure environments that rival the most advanced command centers on Earth.
                     </p>
@@ -1408,7 +1373,7 @@
                     </div>
                 </div>
                 
-                <div class="footer-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px;">
+                <div class="footer-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
                     <div class="footer-section" style="padding: 20px; background: rgba(255,255,255,0.05); border-radius: 15px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
                         <h3 style="font-size: 1.4rem; margin-bottom: 20px; color: #007bff;"><i class="fas fa-link"></i> Quick Links</h3>
                         <ul style="list-style: none; padding: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
