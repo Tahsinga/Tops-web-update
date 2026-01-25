@@ -1,0 +1,21 @@
+{
+  "name": "tops-systems-cms",
+  "version": "1.0.0",
+  "description": "Content Management System for Tops Systems website",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "fs-extra": "^11.1.1",
+    "multer": "^1.4.5-lts.1"
+  },
+  "devDependencies": {
+    "cssnano": "^7.1.2",
+    "cssnano-cli": "^1.0.5",
+    "nodemon": "^3.0.1"
+  }
+}

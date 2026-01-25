@@ -1,52 +1,103 @@
-# Camera Installation Web
+# Tops Systems Website with CMS
 
-This project is a Django site for a camera/security installation business.
+A professional website for Tops Systems with a built-in Content Management System (CMS) that allows admin users to edit content that is visible to all visitors.
 
-## SEO & Production Checklist
+## Features
 
-- Set `DEBUG=False` in production (use environment variable `DEBUG=False`).
-- Ensure you do NOT include `<meta name="robots" content="noindex">` in production templates.
-- Robots file is at `static/robots.txt` and allows crawling; update the `Sitemap:` URL if you change domains.
-- Sitemap is available at `/sitemap.xml`. Add the site to Google Search Console (URL prefix), verify ownership, and submit `/sitemap.xml`.
+- **Admin Login**: Secure admin access with username/password
+- **Live Content Editing**: Edit text and images directly on the website
+- **Multi-User Support**: Changes are visible to all website visitors
+- **Image Upload**: Upload new images that are stored on the server
+- **Content Persistence**: All changes are saved to the server and persist across sessions
+- **Reset Functionality**: Admin can reset all changes to restore original content
 
-If you'd like, I can also update templates to use a shared `base.html` to centralize the head/meta tags.
-# Camera Installation Web
+## Setup Instructions
 
-A Django web application for managing camera installations.
-
-## Project Setup
-
-### Prerequisites
-- Python 3.13+
-- pip
-
-### Installation
-
-1. **Create and activate virtual environment** (if not already done):
-   ```bash
-   python -m venv .venv
-   .venv\Scripts\activate  # On Windows
-   ```
-
-2. **Install Django**:
-   ```bash
-   pip install django
-   ```
-
-3. **Apply migrations**:
-   ```bash
-   python manage.py migrate
-   ```
-
-### Running the Development Server
+### 1. Install Node.js Dependencies
 
 ```bash
-python manage.py runserver
+npm install
 ```
 
-The application will be available at `http://127.0.0.1:8000/`
+### 2. Start the Server
 
-### Creating a Django App
+```bash
+npm start
+```
+
+For development with auto-restart:
+```bash
+npm run dev
+```
+
+### 3. Access the Website
+
+Open your browser and go to: `http://localhost:3001`
+
+## Admin Access
+
+- **Username**: `admin`
+- **Password**: `tops123`
+
+## How to Use
+
+1. **Login**: Click the "Admin" button in the navigation and login with the credentials above
+2. **Edit Text**: Click the ✏️ button next to any text element to edit it
+3. **Edit Images**: Click the 🖼️ button next to any image to upload a new one
+4. **Save Changes**: Click "💾 Save" for text or "✔️ Upload" for images
+5. **Reset**: Use the "Reset All Changes" button to restore original content
+
+## Technical Details
+
+- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
+- **Backend**: Node.js with Express.js
+- **Data Storage**: JSON file-based storage in `/data/content.json`
+- **Image Storage**: Uploaded images stored in `/static/uploads/`
+- **API Endpoints**:
+  - `GET /api/content` - Get all saved content
+  - `POST /api/content/text` - Save text content
+  - `POST /api/content/image` - Save image content
+  - `POST /api/upload` - Upload image files
+  - `POST /api/reset` - Reset all content
+
+## File Structure
+
+```
+/
+├── index.html          # Main website
+├── server.js           # Backend server
+├── package.json        # Node.js dependencies
+├── data/               # Content storage
+│   └── content.json    # Saved content data
+└── static/
+    ├── css/            # Stylesheets
+    ├── images/         # Original images
+    └── uploads/        # User-uploaded images
+```
+
+## Security Notes
+
+- Admin credentials are hardcoded for simplicity
+- In production, implement proper authentication
+- Consider adding rate limiting and input validation
+- The server currently allows CORS for development
+
+## Deployment
+
+For production deployment:
+
+1. Set up a proper web server (nginx, Apache)
+2. Use environment variables for configuration
+3. Implement proper authentication
+4. Add HTTPS
+5. Set up proper file permissions for the data directory
+
+## Troubleshooting
+
+- **Changes not saving**: Check server console for error messages
+- **Images not loading**: Ensure the `/static/uploads/` directory exists and is writable
+- **Server not starting**: Make sure port 3001 is available
+- **CORS errors**: The server includes CORS headers for development
 
 To create a new Django app within this project:
 
