@@ -99,8 +99,16 @@
 </script>
     <link rel="stylesheet" href="/static/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+	<style>
+		/* Disable animations and transitions on this page */
+		.no-animations, .no-animations * {
+			animation: none !important;
+			transition: none !important;
+			scroll-behavior: auto !important;
+		}
+	</style>
 </head>
-<body class="animated-bg">
+<body class="no-animations">
     <nav class="navbar">
         <div class="container">
             <div class="logo">

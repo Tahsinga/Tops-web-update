@@ -10,6 +10,30 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Inject editor script into HTML responses so the in-browser editor is available
+// without modifying every HTML file. It only injects when the HTML doesn't
+// already include the editor script.
+app.use((req, res, next) => {
+  try {
+    if (req.path && req.path.endsWith('.html')) {
+      const filePath = path.join(__dirname, req.path);
+      if (fs.existsSync(filePath)) {
+        let html = fs.readFileSync(filePath, 'utf8');
+        if (!html.includes('/static/js/editor.js')) {
+          const injection = '\n<!-- Editor injection -->\n<script src="/static/js/editor.js"></script>\n';
+          html = html.replace('</body>', injection + '</body>');
+        }
+        res.set('Content-Type', 'text/html');
+        return res.send(html);
+      }
+    }
+  } catch (err) {
+    console.error('Editor injection error:', err);
+  }
+  next();
+});
+
 app.use(express.static('.')); // Serve static files
 
 // Ensure data directory exists
