@@ -1824,8 +1824,8 @@
         function handleLogout() {
             sessionStorage.removeItem('adminLoggedIn');
             document.getElementById('adminControls').style.display = 'none';
-            alert('Logged out successfully!');
-            window.location.reload(); // Reload after logout
+            alert('Logged out successfully! Your edits are saved and will appear after reload.');
+            window.location.reload(); // Reload after logout - saved content will be restored from server
         }
 
         function resetAllChanges() {
