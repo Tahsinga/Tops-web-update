@@ -1793,8 +1793,29 @@
         const ADMIN_USERNAME = "admin";
         const ADMIN_PASSWORD = "admin";
 
+        // Assign stable IDs to all editable elements on page load
+        function assignStableElementIds() {
+            const elements = document.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, span, div[data-html="true"]');
+            let counter = {};
+            elements.forEach((el) => {
+                if (el.closest('script') || el.closest('style') || el.closest('.login-modal') || el.closest('nav') || el.closest('.topbar')) {
+                    return;
+                }
+                if (!el.id) {
+                    const tag = el.tagName.toLowerCase();
+                    counter[tag] = (counter[tag] || 0) + 1;
+                    const contentHash = Math.abs(el.textContent.substring(0, 30).split('').reduce((a, b) => { a = ((a << 5) - a) + b.charCodeAt(0); return a & a; }, 0)).toString(36).substring(0, 4);
+                    el.id = `editable-${tag}-${counter[tag]}-${contentHash}`;
+                }
+            });
+            console.log('Assigned stable IDs to editable elements');
+        }
+
         // Check if user is logged in on page load
         window.addEventListener('DOMContentLoaded', async function() {
+            // Assign stable IDs first
+            assignStableElementIds();
+            
             // Load saved content immediately when DOM is ready and wait for it
             await loadSavedContent();
 
@@ -2122,14 +2143,6 @@
 
                 // Do not assign unstable IDs. Use dataset marker and keep a stable selector when needed.
                 element.dataset.editable = 'true';
-                // store a stable selector on the element for saving when no id exists
-                if (!element.id) {
-                    try {
-                        element.dataset.editSelector = getUniqueSelector(element);
-                    } catch (e) {
-                        element.dataset.editSelector = '';
-                    }
-                }
 
                 // Add edit button
                 const editBtn = document.createElement('button');
@@ -2204,33 +2217,26 @@
                 saveBtn.remove();
                 cancelBtn.remove();
 
-                // Determine a stable key to save under: prefer element.id, else selector-based key
-                let saveKey;
-                if (element.id) {
-                    saveKey = element.id;
-                } else if (element.dataset && element.dataset.editSelector) {
-                    saveKey = 'sel:' + element.dataset.editSelector;
-                } else {
-                    try {
-                        saveKey = 'sel:' + getUniqueSelector(element);
-                    } catch (err) {
-                        saveKey = 'sel:body';
-                    }
-                }
+                // Use element ID (should always exist at this point)
+                const saveKey = element.id || `editable-unsaved-${Math.random().toString(36).substr(2, 9)}`;
+                const saveContent = element.dataset && element.dataset.html === 'true' ? element.innerHTML : element.textContent;
+
+                console.log('Saving to server:', { id: saveKey, content: saveContent });
 
                 // Save to server
                 try {
                     const response = await fetch('/api/content/text', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ id: saveKey, content: element.dataset && element.dataset.html === 'true' ? element.innerHTML : element.textContent })
+                        body: JSON.stringify({ id: saveKey, content: saveContent })
                     });
                     const result = await response.json();
-                    if (!result.success) {
-                        console.error('Failed to save content');
-                        alert('Failed to save changes. Please try again.');
+                    if (result.success) {
+                        console.log('Content saved successfully to', saveKey);
+                        alert('✓ Saved successfully!');
                     } else {
-                        console.log('Content saved successfully');
+                        console.error('Failed to save content:', result);
+                        alert('Failed to save changes. Please try again.');
                     }
                 } catch (error) {
                     console.error('Error saving content:', error);
@@ -2357,38 +2363,23 @@
                 console.log('Loading saved content from server...');
                 const response = await fetch('/api/content');
                 const data = await response.json();
+                console.log('Loaded data keys:', Object.keys(data));
 
-                // Apply all saved content (support flat keys and selector keys prefixed with "sel:")
+                // Apply all saved content by id
                 Object.keys(data).forEach(key => {
                     if (!key || key === 'text' || key === 'images') return;
-                    try {
-                        // selector-based key: "sel:body > ..."
-                        if (key.startsWith('sel:')) {
-                            const selector = key.slice(4);
-                            const el = document.querySelector(selector);
-                            if (el) {
-                                if (el.dataset && el.dataset.html === 'true') {
-                                    el.innerHTML = data[key];
-                                    el.querySelectorAll('.edit-btn, .edit-btn-img, .edit-btn-wrapper, .image-edit-wrapper, .save-btn, .cancel-btn, .delete-project-btn, .delete-service-btn').forEach(n => n.remove());
-                                } else {
-                                    el.textContent = data[key];
-                                }
-                            }
-                            return;
+                    
+                    const element = document.getElementById(key);
+                    if (element) {
+                        console.log('Applying saved content to', key, ':', data[key]);
+                        if (element.dataset && element.dataset.html === 'true') {
+                            element.innerHTML = data[key];
+                            element.querySelectorAll('.edit-btn, .edit-btn-img, .edit-btn-wrapper, .image-edit-wrapper, .save-btn, .cancel-btn, .delete-project-btn, .delete-service-btn').forEach(n => n.remove());
+                        } else {
+                            element.textContent = data[key];
                         }
-
-                        // id-based key
-                        const element = document.getElementById(key);
-                        if (element) {
-                            if (element.dataset && element.dataset.html === 'true') {
-                                element.innerHTML = data[key];
-                                element.querySelectorAll('.edit-btn, .edit-btn-img, .edit-btn-wrapper, .image-edit-wrapper, .save-btn, .cancel-btn, .delete-project-btn, .delete-service-btn').forEach(n => n.remove());
-                            } else {
-                                element.textContent = data[key];
-                            }
-                        }
-                    } catch (err) {
-                        console.warn('Error applying saved key', key, err);
+                    } else {
+                        console.warn('Element with id', key, 'not found in DOM');
                     }
                 });
             } catch (error) {
@@ -2530,19 +2521,8 @@
                 textarea.remove();
                 btnDiv.remove();
                 if (wrapper) wrapper.style.display = '';
-                // Save to server using stable key (id preferred, else selector)
-                let saveKey;
-                if (element.id) {
-                    saveKey = element.id;
-                } else if (element.dataset && element.dataset.editSelector) {
-                    saveKey = 'sel:' + element.dataset.editSelector;
-                } else {
-                    try {
-                        saveKey = 'sel:' + getUniqueSelector(element);
-                    } catch (err) {
-                        saveKey = 'sel:body';
-                    }
-                }
+                // Save to server using element ID (should always exist)
+                const saveKey = element.id || `editable-unsaved-${Math.random().toString(36).substr(2, 9)}`;
                 console.log('Saving text for', saveKey, ':', textarea.value);
 
                 // Save to server
@@ -2550,6 +2530,12 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id: saveKey, content: textarea.value })
+                }).then(r => r.json()).then(result => {
+                    if (result.success) {
+                        console.log('✓ Saved successfully:', saveKey);
+                    } else {
+                        console.error('Save failed:', result);
+                    }
                 }).catch(error => console.error('Error saving text:', error));
             };
 
