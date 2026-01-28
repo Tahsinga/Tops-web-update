@@ -1,7 +1,6 @@
 {
   "name": "tops-web-update",
   "version": "1.0.0",
-  "description": "Tops Systems web",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
