@@ -2062,63 +2062,85 @@
             const imageFile = document.getElementById('projectImageFile').files[0];
 
             let finalImageUrl = imageUrlInput || '';
+            let imageBase64 = '';
             try {
                 if (!finalImageUrl && imageFile) {
-                    // upload file
-                    console.log('Uploading image file:', imageFile.name, 'size:', imageFile.size);
-                    const fd = new FormData();
-                    fd.append('image', imageFile);
-                    const up = await fetch('/api/upload', { method: 'POST', body: fd });
-                    const upData = await up.json();
-                    console.log('Upload response:', upData);
-                    if (upData.success) {
-                        // support both server variants: { imageUrl } (server.js) and { url } (index.js)
-                        finalImageUrl = upData.imageUrl || upData.url || '';
-                        console.log('Final image URL set to:', finalImageUrl);
-                    } else {
-                        console.error('Upload failed:', upData.error);
-                        alert('Image upload failed: ' + (upData.error || 'Unknown error'));
-                    }
+                    // Read file as base64 for database storage
+                    console.log('Reading image file:', imageFile.name, 'size:', imageFile.size);
+                    const reader = new FileReader();
+                    reader.onload = async function(e) {
+                        imageBase64 = e.target.result;
+                        console.log('Image converted to base64, length:', imageBase64.length);
+                        
+                        // Sanitize title to create unique image ID
+                        const imageId = `project-image-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+                        
+                        try {
+                            // Save image to database
+                            await fetch('/api/content/image', {
+                                method: 'POST',
+                                headers: {'Content-Type':'application/json'},
+                                body: JSON.stringify({ id: imageId, imageData: imageBase64 })
+                            });
+                            console.log('Image saved to database with ID:', imageId);
+                            
+                            // Use the base64 directly as src
+                            finalImageUrl = imageBase64;
+                            
+                            // Now add the project with the base64 image
+                            await addProjectWithImage(title, desc, finalImageUrl, imageId);
+                        } catch (err) {
+                            console.error('Error saving image:', err);
+                            alert('Failed to save image to database. Check console.');
+                        }
+                    };
+                    reader.readAsDataURL(imageFile);
+                } else {
+                    // Use provided URL or fallback
+                    if (!finalImageUrl) finalImageUrl = '/static/images/recent_projects/residential_setup.jpg';
+                    await addProjectWithImage(title, desc, finalImageUrl, '');
                 }
-
-                // Fallback to placeholder if none provided
-                if (!finalImageUrl) {
-                    console.warn('No image provided, using placeholder');
-                    finalImageUrl = '/static/images/recent_projects/residential_setup.jpg';
-                }
-
-                // Build project card HTML matching existing structure
-                const projectHTML = `
-                    <div class="project-card">
-                        <div class="project-image"><img loading="lazy" src="${finalImageUrl}" alt="${escapeHtml(title)}"></div>
-                        <div class="project-info"><h4>${escapeHtml(title)}</h4><p>${escapeHtml(desc)}</p></div>
-                    </div>`;
-
-                // Append to desktop and mobile grids (in DOM)
-                const desktopGrid = document.getElementById('projects-grid-desktop');
-                const mobileGrid = document.getElementById('projects-grid-mobile');
-                if (desktopGrid) desktopGrid.insertAdjacentHTML('beforeend', projectHTML);
-                if (mobileGrid) mobileGrid.insertAdjacentHTML('beforeend', projectHTML);
-
-                // Persist grids by saving sanitized innerHTML to server (remove any editor buttons)
-                if (desktopGrid) {
-                    const clone = desktopGrid.cloneNode(true);
-                    clone.querySelectorAll('.edit-btn, .edit-btn-img, .edit-btn-wrapper, .image-edit-wrapper, .save-btn, .cancel-btn').forEach(n => n.remove());
-                    await fetch('/api/content/text', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ id: 'projects-grid-desktop', content: clone.innerHTML }) });
-                }
-                if (mobileGrid) {
-                    const clone2 = mobileGrid.cloneNode(true);
-                    clone2.querySelectorAll('.edit-btn, .edit-btn-img, .edit-btn-wrapper, .image-edit-wrapper, .save-btn, .cancel-btn').forEach(n => n.remove());
-                    await fetch('/api/content/text', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ id: 'projects-grid-mobile', content: clone2.innerHTML }) });
-                }
-
-                alert('Project added successfully');
-                closeAddProjectModal();
             } catch (err) {
                 console.error('Error adding project:', err);
                 alert('Failed to add project. Check console.');
             }
         });
+
+        async function addProjectWithImage(title, desc, imageUrl, imageId) {
+            // Build project card HTML matching existing structure
+            const projectHTML = `
+                <div class="project-card">
+                    <div class="project-image"><img loading="lazy" src="${imageUrl}" alt="${escapeHtml(title)}"></div>
+                    <div class="project-info"><h4>${escapeHtml(title)}</h4><p>${escapeHtml(desc)}</p></div>
+                </div>`;
+
+            // Append to desktop and mobile grids (in DOM)
+            const desktopGrid = document.getElementById('projects-grid-desktop');
+            const mobileGrid = document.getElementById('projects-grid-mobile');
+            if (desktopGrid) desktopGrid.insertAdjacentHTML('beforeend', projectHTML);
+            if (mobileGrid) mobileGrid.insertAdjacentHTML('beforeend', projectHTML);
+
+            // Re-add admin controls to new cards
+            if (sessionStorage.getItem('adminLoggedIn')) {
+                addDeleteButtonsToProjects();
+                addEditButtonsToAll();
+            }
+
+            // Persist grids by saving sanitized innerHTML to server (remove any editor buttons)
+            if (desktopGrid) {
+                const clone = desktopGrid.cloneNode(true);
+                clone.querySelectorAll('.edit-btn, .edit-btn-img, .edit-btn-wrapper, .image-edit-wrapper, .save-btn, .cancel-btn, .delete-project-btn').forEach(n => n.remove());
+                await fetch('/api/content/text', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ id: 'projects-grid-desktop', content: clone.innerHTML }) });
+            }
+            if (mobileGrid) {
+                const clone2 = mobileGrid.cloneNode(true);
+                clone2.querySelectorAll('.edit-btn, .edit-btn-img, .edit-btn-wrapper, .image-edit-wrapper, .save-btn, .cancel-btn, .delete-project-btn').forEach(n => n.remove());
+                await fetch('/api/content/text', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ id: 'projects-grid-mobile', content: clone2.innerHTML }) });
+            }
+
+            alert('Project added successfully');
+            closeAddProjectModal();
+        }
 
         function escapeHtml(text) {
             return text.replace(/[&<>\"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]; });
@@ -2383,15 +2405,34 @@
                 const data = await response.json();
                 console.log('Loaded data keys:', Object.keys(data));
 
+                // First, load and prepare image data (base64 images stored in database)
+                const imageMap = data.images || {};
+                console.log('Loaded images from database:', Object.keys(imageMap).length, 'images');
+
                 // Apply all saved content by id
                 Object.keys(data).forEach(key => {
                     if (!key || key === 'text' || key === 'images') return;
                     
                     const element = document.getElementById(key);
                     if (element) {
-                        console.log('Applying saved content to', key, ':', data[key]);
+                        console.log('Applying saved content to', key);
                         if (element.dataset && element.dataset.html === 'true') {
-                            element.innerHTML = data[key];
+                            let contentHtml = data[key];
+                            
+                            // Replace image IDs with base64 data if available (for project/service grids)
+                            Object.keys(imageMap).forEach(imgId => {
+                                const imageData = imageMap[imgId];
+                                if (imageData && contentHtml.includes(`id="${imgId}"`)) {
+                                    // Replace img src attributes that reference this image ID
+                                    contentHtml = contentHtml.replace(
+                                        new RegExp(`<img[^>]*id="${imgId}"[^>]*>`, 'g'),
+                                        `<img loading="lazy" src="${imageData}" alt="Project Image" id="${imgId}">`
+                                    );
+                                    console.log('Restored image from database:', imgId);
+                                }
+                            });
+                            
+                            element.innerHTML = contentHtml;
                             element.querySelectorAll('.edit-btn, .edit-btn-img, .edit-btn-wrapper, .image-edit-wrapper, .save-btn, .cancel-btn, .delete-project-btn, .delete-service-btn').forEach(n => n.remove());
                         } else {
                             element.textContent = data[key];
