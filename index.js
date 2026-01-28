@@ -1,34 +1,59 @@
-// try to load express and fail fast with clear instructions if it's missing/corrupt
-let express;
-try {
-	express = require('express');
-} catch (err) {
-	console.error('ERROR: express is missing or corrupted in node_modules.');
-	console.error('Fix locally, commit package.json & package-lock.json, then push.');
-	console.error('Run locally:');
-	console.error('  rm -rf node_modules');
-	console.error('  rm -f package-lock.json');
-	console.error('  npm install express@4');
-	console.error('  npm install');
-	console.error('');
-	console.error('Detailed error:', err && err.stack ? err.stack : err);
-	process.exit(1);
-}
-
+const http = require('http');
+const fs = require('fs');
 const path = require('path');
-const app = express();
+const url = require('url');
+
 const PORT = process.env.PORT || 3000;
+const STATIC_DIR = path.join(__dirname, 'static');
 
-// Serve static files from /static
-app.use('/static', express.static(path.join(__dirname, 'static')));
+const server = http.createServer((req, res) => {
+	const parsedUrl = url.parse(req.url, true);
+	let filePath = path.join(STATIC_DIR, parsedUrl.pathname);
 
-// Serve index.html if present, fallback text otherwise
-app.get('/', (req, res) => {
-	res.sendFile(path.join(__dirname, 'static', 'index.html'), err => {
-		if (err) res.type('txt').send('App running but index.html not found.');
+	// Prevent directory traversal
+	if (!filePath.startsWith(STATIC_DIR)) {
+		res.writeHead(403, { 'Content-Type': 'text/plain' });
+		res.end('Forbidden');
+		return;
+	}
+
+	// If requesting root, serve index.html
+	if (parsedUrl.pathname === '/') {
+		filePath = path.join(STATIC_DIR, 'index.html');
+	}
+
+	// Check if file exists
+	fs.stat(filePath, (err, stats) => {
+		if (err || !stats.isFile()) {
+			res.writeHead(404, { 'Content-Type': 'text/plain' });
+			res.end('Not found');
+			return;
+		}
+
+		// Determine content type
+		const ext = path.extname(filePath).toLowerCase();
+		const contentTypes = {
+			'.html': 'text/html; charset=utf-8',
+			'.css': 'text/css',
+			'.js': 'application/javascript',
+			'.json': 'application/json',
+			'.png': 'image/png',
+			'.jpg': 'image/jpeg',
+			'.jpeg': 'image/jpeg',
+			'.gif': 'image/gif',
+			'.svg': 'image/svg+xml',
+			'.webp': 'image/webp',
+			'.ico': 'image/x-icon',
+			'.woff': 'font/woff',
+			'.woff2': 'font/woff2'
+		};
+		const contentType = contentTypes[ext] || 'application/octet-stream';
+
+		res.writeHead(200, { 'Content-Type': contentType });
+		fs.createReadStream(filePath).pipe(res);
 	});
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}`);
 });

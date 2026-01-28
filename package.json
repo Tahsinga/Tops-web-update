@@ -2,12 +2,11 @@
   "name": "tops-web-update",
   "version": "1.0.0",
   "main": "index.js",
+  "private": true,
   "scripts": {
     "start": "node index.js"
   },
-  "dependencies": {
-    "express": "^4.22.1"
-  },
+  "dependencies": {},
   "engines": {
     "node": "18.x"
   }
