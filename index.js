@@ -115,7 +115,19 @@ const server = http.createServer((req, res) => {
 			fs.mkdirSync(uploadDir, { recursive: true });
 		}
 		
-		const filename = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+		// Default filename with timestamp
+		const timestamp = Date.now();
+		const random = Math.random().toString(36).substr(2, 9);
+		let filename = `upload_${timestamp}_${random}`;
+		
+		// Try to extract filename from Content-Disposition header
+		const contentDisposition = req.headers['content-disposition'] || '';
+		const filenameMatch = contentDisposition.match(/filename="([^"]+)"/);
+		if (filenameMatch && filenameMatch[1]) {
+			const ext = path.extname(filenameMatch[1]);
+			filename = `upload_${timestamp}_${random}${ext}`;
+		}
+		
 		const filepath = path.join(uploadDir, filename);
 		const stream = fs.createWriteStream(filepath);
 		
@@ -124,9 +136,10 @@ const server = http.createServer((req, res) => {
 			res.writeHead(200, { 'Content-Type': 'application/json' });
 			res.end(JSON.stringify({ success: true, url: `/static/uploads/${filename}` }));
 		});
-		stream.on('error', () => {
+		stream.on('error', (err) => {
+			console.error('Stream error:', err);
 			res.writeHead(500, { 'Content-Type': 'application/json' });
-			res.end(JSON.stringify({ success: false }));
+			res.end(JSON.stringify({ success: false, error: err.message }));
 		});
 		return;
 	}

@@ -2065,18 +2065,27 @@
             try {
                 if (!finalImageUrl && imageFile) {
                     // upload file
+                    console.log('Uploading image file:', imageFile.name, 'size:', imageFile.size);
                     const fd = new FormData();
                     fd.append('image', imageFile);
                     const up = await fetch('/api/upload', { method: 'POST', body: fd });
                     const upData = await up.json();
+                    console.log('Upload response:', upData);
                     if (upData.success) {
                         // support both server variants: { imageUrl } (server.js) and { url } (index.js)
-                        finalImageUrl = upData.imageUrl || upData.url || finalImageUrl;
+                        finalImageUrl = upData.imageUrl || upData.url || '';
+                        console.log('Final image URL set to:', finalImageUrl);
+                    } else {
+                        console.error('Upload failed:', upData.error);
+                        alert('Image upload failed: ' + (upData.error || 'Unknown error'));
                     }
                 }
 
                 // Fallback to placeholder if none provided
-                if (!finalImageUrl) finalImageUrl = '/static/images/recent_projects/residential_setup.jpg';
+                if (!finalImageUrl) {
+                    console.warn('No image provided, using placeholder');
+                    finalImageUrl = '/static/images/recent_projects/residential_setup.jpg';
+                }
 
                 // Build project card HTML matching existing structure
                 const projectHTML = `
