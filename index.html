@@ -2085,6 +2085,25 @@
             return text.replace(/[&<>\"']/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"}[c]; });
         }
 
+        // Return a stable, CSS selector path for an element (used when element has no id)
+        function getUniqueSelector(el) {
+            if (!(el instanceof Element)) return '';
+            const parts = [];
+            while (el && el.nodeType === 1 && el !== document.body) {
+                const tag = el.tagName.toLowerCase();
+                // count index among siblings of same tag
+                let index = 1;
+                let sib = el;
+                while (sib.previousElementSibling) {
+                    sib = sib.previousElementSibling;
+                    if (sib.tagName === el.tagName) index++;
+                }
+                parts.unshift(`${tag}:nth-of-type(${index})`);
+                el = el.parentElement;
+            }
+            return 'body > ' + parts.join(' > ');
+        }
+
         function addEditButtonsToAll() {
             // Add edit buttons to all paragraphs, headings, and list items
             const allElements = document.querySelectorAll('p, h1, h2, h3, h4, h5, h6, li, span');
@@ -2101,11 +2120,16 @@
                     return;
                 }
 
-                // Create unique ID for each element
-                if (!element.id) {
-                    element.id = 'editable-' + index;
-                }
+                // Do not assign unstable IDs. Use dataset marker and keep a stable selector when needed.
                 element.dataset.editable = 'true';
+                // store a stable selector on the element for saving when no id exists
+                if (!element.id) {
+                    try {
+                        element.dataset.editSelector = getUniqueSelector(element);
+                    } catch (e) {
+                        element.dataset.editSelector = '';
+                    }
+                }
 
                 // Add edit button
                 const editBtn = document.createElement('button');
@@ -2179,16 +2203,27 @@
                 textarea.remove();
                 saveBtn.remove();
                 cancelBtn.remove();
-                
+
+                // Determine a stable key to save under: prefer element.id, else selector-based key
+                let saveKey;
+                if (element.id) {
+                    saveKey = element.id;
+                } else if (element.dataset && element.dataset.editSelector) {
+                    saveKey = 'sel:' + element.dataset.editSelector;
+                } else {
+                    try {
+                        saveKey = 'sel:' + getUniqueSelector(element);
+                    } catch (err) {
+                        saveKey = 'sel:body';
+                    }
+                }
+
                 // Save to server
                 try {
                     const response = await fetch('/api/content/text', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            id: element.id || `element_${Math.random().toString(36).substr(2, 9)}`,
-                            content: element.innerHTML
-                        })
+                        body: JSON.stringify({ id: saveKey, content: element.dataset && element.dataset.html === 'true' ? element.innerHTML : element.textContent })
                     });
                     const result = await response.json();
                     if (!result.success) {
@@ -2201,7 +2236,7 @@
                     console.error('Error saving content:', error);
                     alert('Error saving changes.');
                 }
-                
+
                 // Re-add edit button
                 const editBtn = document.createElement('button');
                 editBtn.className = 'edit-btn';
@@ -2323,22 +2358,37 @@
                 const response = await fetch('/api/content');
                 const data = await response.json();
 
-                // Apply all saved content (data is now flat key-value pairs)
+                // Apply all saved content (support flat keys and selector keys prefixed with "sel:")
                 Object.keys(data).forEach(key => {
-                    // Skip if it's a settings key
-                    if (key.startsWith('_')) return;
-                    
-                    const element = document.getElementById(key);
-                    if (element) {
-                        console.log('Loading content for', key);
-                        // If element has data-html="true", set innerHTML
-                        if (element.dataset && element.dataset.html === 'true') {
-                            element.innerHTML = data[key];
-                            // sanitize any leftover editor buttons
-                            element.querySelectorAll('.edit-btn, .edit-btn-img, .edit-btn-wrapper, .image-edit-wrapper, .save-btn, .cancel-btn, .delete-project-btn, .delete-service-btn').forEach(n => n.remove());
-                        } else {
-                            element.textContent = data[key];
+                    if (!key || key === 'text' || key === 'images') return;
+                    try {
+                        // selector-based key: "sel:body > ..."
+                        if (key.startsWith('sel:')) {
+                            const selector = key.slice(4);
+                            const el = document.querySelector(selector);
+                            if (el) {
+                                if (el.dataset && el.dataset.html === 'true') {
+                                    el.innerHTML = data[key];
+                                    el.querySelectorAll('.edit-btn, .edit-btn-img, .edit-btn-wrapper, .image-edit-wrapper, .save-btn, .cancel-btn, .delete-project-btn, .delete-service-btn').forEach(n => n.remove());
+                                } else {
+                                    el.textContent = data[key];
+                                }
+                            }
+                            return;
                         }
+
+                        // id-based key
+                        const element = document.getElementById(key);
+                        if (element) {
+                            if (element.dataset && element.dataset.html === 'true') {
+                                element.innerHTML = data[key];
+                                element.querySelectorAll('.edit-btn, .edit-btn-img, .edit-btn-wrapper, .image-edit-wrapper, .save-btn, .cancel-btn, .delete-project-btn, .delete-service-btn').forEach(n => n.remove());
+                            } else {
+                                element.textContent = data[key];
+                            }
+                        }
+                    } catch (err) {
+                        console.warn('Error applying saved key', key, err);
                     }
                 });
             } catch (error) {
@@ -2480,23 +2530,26 @@
                 textarea.remove();
                 btnDiv.remove();
                 if (wrapper) wrapper.style.display = '';
-                
-                // Save to server
-                if (!element.id) {
-                    // Generate consistent ID if not already set
-                    const elementType = element.tagName.toLowerCase();
-                    const parentClasses = element.parentElement ? element.parentElement.className : '';
-                    const textSnippet = element.textContent.substring(0, 50).replace(/[^a-zA-Z0-9]/g, '');
-                    const index = Array.from(element.parentElement.children).indexOf(element);
-                    element.id = `editable-${elementType}-${index}-${textSnippet}`;
+                // Save to server using stable key (id preferred, else selector)
+                let saveKey;
+                if (element.id) {
+                    saveKey = element.id;
+                } else if (element.dataset && element.dataset.editSelector) {
+                    saveKey = 'sel:' + element.dataset.editSelector;
+                } else {
+                    try {
+                        saveKey = 'sel:' + getUniqueSelector(element);
+                    } catch (err) {
+                        saveKey = 'sel:body';
+                    }
                 }
-                console.log('Saving text for', element.id, ':', textarea.value);
+                console.log('Saving text for', saveKey, ':', textarea.value);
 
                 // Save to server
                 fetch('/api/content/text', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: element.id, content: textarea.value })
+                    body: JSON.stringify({ id: saveKey, content: textarea.value })
                 }).catch(error => console.error('Error saving text:', error));
             };
 

@@ -66,11 +66,13 @@ const server = http.createServer((req, res) => {
 		return;
 	}
 
-	// API: Get saved content
+	// API: Get saved content (return both flat mapping and `text` for backwards compatibility)
 	if (pathname === '/api/content' && req.method === 'GET') {
 		const saved = getSavedContent();
+		// respond with flat keys and a `text` object for older clients
+		const resp = Object.assign({}, saved, { text: saved });
 		res.writeHead(200, { 'Content-Type': 'application/json' });
-		res.end(JSON.stringify(saved));
+		res.end(JSON.stringify(resp));
 		return;
 	}
 
