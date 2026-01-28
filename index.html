@@ -1413,33 +1413,39 @@
     <!-- Login System -->
     <style>
         .login-modal {
-            display: none;
+            display: none !important;
             position: fixed;
             z-index: 10000;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: rgba(0, 0, 0, 0.6);
             animation: fadeIn 0.3s ease;
+            align-items: center;
+            justify-content: center;
         }
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
         }
         .login-modal.active {
-            display: flex;
+            display: flex !important;
             align-items: center;
             justify-content: center;
         }
         .login-content {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            max-width: 400px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
+            padding: 48px;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 102, 255, 0.15), 0 0 0 1px rgba(0, 102, 255, 0.1);
+            max-width: 520px;
             width: 90%;
-            animation: slideIn 0.3s ease;
+            animation: slideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: 1px solid rgba(0, 102, 255, 0.2);
+        }
+        #addProjectModal .login-content {
+            max-width: 480px;
         }
         @keyframes slideIn {
             from {
@@ -1453,25 +1459,61 @@
         }
         .login-content h2 {
             text-align: center;
-            color: #333;
+            background: linear-gradient(135deg, #0066ff, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin-bottom: 30px;
             font-size: 1.8rem;
+            font-weight: 800;
         }
-        .login-form .form-group {
-            margin-bottom: 20px;
+        .login-form .form-group,
+        #addProjectForm .form-group {
+            margin-bottom: 24px;
         }
-        .login-form label {
+        .login-form label,
+        #addProjectForm label {
             display: block;
-            margin-bottom: 8px;
-            color: #555;
+            margin-bottom: 10px;
+            color: #333;
             font-weight: 600;
+            font-size: 0.95rem;
         }
-        .login-form input {
+        .login-form input,
+        .login-form textarea,
+        #addProjectForm input,
+        #addProjectForm textarea {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            padding: 12px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
             font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+        .login-form input:focus,
+        .login-form textarea:focus,
+        #addProjectForm input:focus,
+        #addProjectForm textarea:focus {
+            outline: none;
+            border-color: #0066ff;
+            box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.1);
+        }
+        #addProjectForm textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        @media (max-width: 768px) {
+            .login-content {
+                padding: 32px 24px !important;
+                max-width: 100% !important;
+                width: 95% !important;
+            }
+            .login-content h2 {
+                font-size: 1.5rem;
+                margin-bottom: 24px;
+            }
+        }
             box-sizing: border-box;
             transition: border-color 0.3s;
         }
@@ -1781,12 +1823,8 @@
                     <textarea id="projectDesc" rows="3" required></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="projectImageUrl">Image URL (or leave blank to upload)</label>
-                    <input type="text" id="projectImageUrl" placeholder="/static/images/your_image.jpg" />
-                </div>
-                <div class="form-group">
-                    <label for="projectImageFile">Or upload image</label>
-                    <input type="file" id="projectImageFile" accept="image/*" />
+                    <label for="projectImageFile">Upload Project Image</label>
+                    <input type="file" id="projectImageFile" accept="image/*" required />
                 </div>
                 <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:10px;">
                     <button type="button" class="cancel-btn" onclick="closeAddProjectModal()">Cancel</button>
@@ -2058,48 +2096,45 @@
             e.preventDefault();
             const title = document.getElementById('projectTitle').value.trim();
             const desc = document.getElementById('projectDesc').value.trim();
-            const imageUrlInput = document.getElementById('projectImageUrl').value.trim();
             const imageFile = document.getElementById('projectImageFile').files[0];
 
-            let finalImageUrl = imageUrlInput || '';
+            if (!imageFile) {
+                alert('Please select an image file');
+                return;
+            }
+
             let imageBase64 = '';
             try {
-                if (!finalImageUrl && imageFile) {
-                    // Read file as base64 for database storage
-                    console.log('Reading image file:', imageFile.name, 'size:', imageFile.size);
-                    const reader = new FileReader();
-                    reader.onload = async function(e) {
-                        imageBase64 = e.target.result;
-                        console.log('Image converted to base64, length:', imageBase64.length);
+                // Read file as base64 for database storage
+                console.log('Reading image file:', imageFile.name, 'size:', imageFile.size);
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    imageBase64 = e.target.result;
+                    console.log('Image converted to base64, length:', imageBase64.length);
+                    
+                    // Sanitize title to create unique image ID
+                    const imageId = `project-image-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+                    
+                    try {
+                        // Save image to database
+                        await fetch('/api/content/image', {
+                            method: 'POST',
+                            headers: {'Content-Type':'application/json'},
+                            body: JSON.stringify({ id: imageId, imageData: imageBase64 })
+                        });
+                        console.log('Image saved to database with ID:', imageId);
                         
-                        // Sanitize title to create unique image ID
-                        const imageId = `project-image-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+                        // Use the base64 directly as src
+                        const finalImageUrl = imageBase64;
                         
-                        try {
-                            // Save image to database
-                            await fetch('/api/content/image', {
-                                method: 'POST',
-                                headers: {'Content-Type':'application/json'},
-                                body: JSON.stringify({ id: imageId, imageData: imageBase64 })
-                            });
-                            console.log('Image saved to database with ID:', imageId);
-                            
-                            // Use the base64 directly as src
-                            finalImageUrl = imageBase64;
-                            
-                            // Now add the project with the base64 image
-                            await addProjectWithImage(title, desc, finalImageUrl, imageId);
-                        } catch (err) {
-                            console.error('Error saving image:', err);
-                            alert('Failed to save image to database. Check console.');
-                        }
-                    };
-                    reader.readAsDataURL(imageFile);
-                } else {
-                    // Use provided URL or fallback
-                    if (!finalImageUrl) finalImageUrl = '/static/images/recent_projects/residential_setup.jpg';
-                    await addProjectWithImage(title, desc, finalImageUrl, '');
-                }
+                        // Now add the project with the base64 image
+                        await addProjectWithImage(title, desc, finalImageUrl, imageId);
+                    } catch (err) {
+                        console.error('Error saving image:', err);
+                        alert('Failed to save image to database. Check console.');
+                    }
+                };
+                reader.readAsDataURL(imageFile);
             } catch (err) {
                 console.error('Error adding project:', err);
                 alert('Failed to add project. Check console.');
