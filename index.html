@@ -2170,7 +2170,7 @@
             saveBtn.className = 'save-btn';
             saveBtn.textContent = '💾 Save';
             saveBtn.style.marginRight = '5px';
-            saveBtn.onclick = function(e) {
+            saveBtn.onclick = async function(e) {
                 e.preventDefault();
                 element.innerHTML = textarea.value;
                 element.classList.remove('edit-mode');
@@ -2179,6 +2179,28 @@
                 textarea.remove();
                 saveBtn.remove();
                 cancelBtn.remove();
+                
+                // Save to server
+                try {
+                    const response = await fetch('/api/content/text', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            id: element.id || `element_${Math.random().toString(36).substr(2, 9)}`,
+                            content: element.innerHTML
+                        })
+                    });
+                    const result = await response.json();
+                    if (!result.success) {
+                        console.error('Failed to save content');
+                        alert('Failed to save changes. Please try again.');
+                    } else {
+                        console.log('Content saved successfully');
+                    }
+                } catch (error) {
+                    console.error('Error saving content:', error);
+                    alert('Error saving changes.');
+                }
                 
                 // Re-add edit button
                 const editBtn = document.createElement('button');
@@ -2301,28 +2323,22 @@
                 const response = await fetch('/api/content');
                 const data = await response.json();
 
-                // Load saved text/HTML content
-                Object.keys(data.text || {}).forEach(id => {
-                    const element = document.getElementById(id);
+                // Apply all saved content (data is now flat key-value pairs)
+                Object.keys(data).forEach(key => {
+                    // Skip if it's a settings key
+                    if (key.startsWith('_')) return;
+                    
+                    const element = document.getElementById(key);
                     if (element) {
-                        console.log('Loading text/HTML for', id, ':', data.text[id]);
-                        // If element explicitly marked as HTML container, set innerHTML
+                        console.log('Loading content for', key);
+                        // If element has data-html="true", set innerHTML
                         if (element.dataset && element.dataset.html === 'true') {
-                            element.innerHTML = data.text[id];
-                            // sanitize any leftover editor buttons that might have been saved
-                            element.querySelectorAll('.edit-btn, .edit-btn-img, .edit-btn-wrapper, .image-edit-wrapper, .save-btn, .cancel-btn').forEach(n => n.remove());
+                            element.innerHTML = data[key];
+                            // sanitize any leftover editor buttons
+                            element.querySelectorAll('.edit-btn, .edit-btn-img, .edit-btn-wrapper, .image-edit-wrapper, .save-btn, .cancel-btn, .delete-project-btn, .delete-service-btn').forEach(n => n.remove());
                         } else {
-                            element.textContent = data.text[id];
+                            element.textContent = data[key];
                         }
-                    }
-                });
-
-                // Load saved images
-                Object.keys(data.images || {}).forEach(id => {
-                    const img = document.getElementById(id);
-                    if (img) {
-                        console.log('Loading image for', id);
-                        img.src = data.images[id];
                     }
                 });
             } catch (error) {

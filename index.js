@@ -5,10 +5,132 @@ const url = require('url');
 
 const PORT = process.env.PORT || 3000;
 const ROOT_DIR = __dirname;
+const CONTENT_FILE = path.join(ROOT_DIR, 'data', 'saved_content.json');
+
+// Ensure data directory exists
+if (!fs.existsSync(path.join(ROOT_DIR, 'data'))) {
+	fs.mkdirSync(path.join(ROOT_DIR, 'data'), { recursive: true });
+}
+
+// Helper to read saved content
+function getSavedContent() {
+	try {
+		if (fs.existsSync(CONTENT_FILE)) {
+			return JSON.parse(fs.readFileSync(CONTENT_FILE, 'utf8'));
+		}
+	} catch (e) {
+		console.error('Error reading saved content:', e);
+	}
+	return {};
+}
+
+// Helper to save content
+function saveSavedContent(data) {
+	try {
+		fs.writeFileSync(CONTENT_FILE, JSON.stringify(data, null, 2), 'utf8');
+		return true;
+	} catch (e) {
+		console.error('Error saving content:', e);
+		return false;
+	}
+}
+
+// Helper to parse request body
+function parseBody(req, callback) {
+	let body = '';
+	req.on('data', chunk => {
+		body += chunk.toString();
+	});
+	req.on('end', () => {
+		try {
+			callback(JSON.parse(body));
+		} catch (e) {
+			callback(null);
+		}
+	});
+}
 
 const server = http.createServer((req, res) => {
 	const parsedUrl = url.parse(req.url, true);
-	let filePath = path.join(ROOT_DIR, parsedUrl.pathname);
+	const pathname = parsedUrl.pathname;
+
+	// Enable CORS
+	res.setHeader('Access-Control-Allow-Origin', '*');
+	res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+	res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+	// Handle OPTIONS requests
+	if (req.method === 'OPTIONS') {
+		res.writeHead(200);
+		res.end();
+		return;
+	}
+
+	// API: Get saved content
+	if (pathname === '/api/content' && req.method === 'GET') {
+		const saved = getSavedContent();
+		res.writeHead(200, { 'Content-Type': 'application/json' });
+		res.end(JSON.stringify(saved));
+		return;
+	}
+
+	// API: Save content text
+	if (pathname === '/api/content/text' && req.method === 'POST') {
+		parseBody(req, (data) => {
+			if (data && data.id && data.content !== undefined) {
+				const saved = getSavedContent();
+				saved[data.id] = data.content;
+				const success = saveSavedContent(saved);
+				res.writeHead(200, { 'Content-Type': 'application/json' });
+				res.end(JSON.stringify({ success }));
+			} else {
+				res.writeHead(400, { 'Content-Type': 'application/json' });
+				res.end(JSON.stringify({ success: false, error: 'Invalid data' }));
+			}
+		});
+		return;
+	}
+
+	// API: Reset all changes
+	if (pathname === '/api/reset' && req.method === 'POST') {
+		try {
+			if (fs.existsSync(CONTENT_FILE)) {
+				fs.unlinkSync(CONTENT_FILE);
+			}
+			res.writeHead(200, { 'Content-Type': 'application/json' });
+			res.end(JSON.stringify({ success: true }));
+		} catch (e) {
+			res.writeHead(500, { 'Content-Type': 'application/json' });
+			res.end(JSON.stringify({ success: false, error: e.message }));
+		}
+		return;
+	}
+
+	// API: Upload file
+	if (pathname === '/api/upload' && req.method === 'POST') {
+		const uploadDir = path.join(ROOT_DIR, 'static', 'uploads');
+		if (!fs.existsSync(uploadDir)) {
+			fs.mkdirSync(uploadDir, { recursive: true });
+		}
+		
+		const filename = `upload_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+		const filepath = path.join(uploadDir, filename);
+		const stream = fs.createWriteStream(filepath);
+		
+		req.pipe(stream);
+		stream.on('finish', () => {
+			res.writeHead(200, { 'Content-Type': 'application/json' });
+			res.end(JSON.stringify({ success: true, url: `/static/uploads/${filename}` }));
+		});
+		stream.on('error', () => {
+			res.writeHead(500, { 'Content-Type': 'application/json' });
+			res.end(JSON.stringify({ success: false }));
+		});
+		return;
+	}
+
+	// Static file serving
+	let filePath = path.join(ROOT_DIR, pathname);
 
 	// Prevent directory traversal
 	if (!filePath.startsWith(ROOT_DIR)) {
@@ -18,7 +140,7 @@ const server = http.createServer((req, res) => {
 	}
 
 	// If requesting root, serve index.html
-	if (parsedUrl.pathname === '/') {
+	if (pathname === '/') {
 		filePath = path.join(ROOT_DIR, 'index.html');
 	}
 
