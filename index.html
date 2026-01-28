@@ -1504,16 +1504,25 @@
         }
         .login-btn-header {
             background: #007bff;
-            padding: 6px 14px;
+            padding: 4px 10px;
             color: white;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             margin-right: 10px;
+            white-space: nowrap;
+            transition: all 0.3s ease;
         }
         .login-btn-header:hover {
             background: #0056b3;
+        }
+        @media (max-width: 768px) {
+            .login-btn-header {
+                padding: 4px 8px;
+                font-size: 0.8rem;
+                margin-right: 5px;
+            }
         }
         .edit-btn {
             background: #28a745;
@@ -2135,14 +2144,24 @@
         document.addEventListener('DOMContentLoaded', function() {
             const isLoggedIn = sessionStorage.getItem('adminLoggedIn');
             if (!isLoggedIn) {
-                // Add login button to nav if not already present
-                const navLinks = document.querySelector('.nav-links');
-                if (navLinks && !navLinks.querySelector('.login-btn-header')) {
+                // Add login button to desktop nav
+                const desktopNav = document.querySelector('.desktop-nav-bar .nav-links');
+                if (desktopNav && !desktopNav.querySelector('.login-btn-header')) {
                     const loginBtn = document.createElement('button');
                     loginBtn.className = 'login-btn-header';
                     loginBtn.textContent = 'Admin';
                     loginBtn.onclick = openLoginModal;
-                    navLinks.appendChild(loginBtn);
+                    desktopNav.appendChild(loginBtn);
+                }
+                
+                // Add login button to mobile nav
+                const mobileNav = document.querySelector('.mobile-nav-bar .nav-links');
+                if (mobileNav && !mobileNav.querySelector('.login-btn-header')) {
+                    const loginBtn = document.createElement('button');
+                    loginBtn.className = 'login-btn-header';
+                    loginBtn.textContent = 'Admin';
+                    loginBtn.onclick = openLoginModal;
+                    mobileNav.appendChild(loginBtn);
                 }
             }
         });
