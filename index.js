@@ -6,10 +6,10 @@ const PORT = process.env.PORT || 3000;
 // Serve static files from /static
 app.use('/static', express.static(path.join(__dirname, 'static')));
 
-// Serve index.html if present
+// Serve index.html if present, fallback text otherwise
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'static', 'index.html'), err => {
-    if (err) res.type('txt').send('Hello from Tops Systems 🚀');
+    if (err) res.type('txt').send('App running 🚀');
   });
 });
 
