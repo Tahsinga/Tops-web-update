@@ -891,9 +891,12 @@
         <div class="container desktop-container">
             <div class="section-title" style="display: grid; grid-template-columns: 1fr 2fr; gap: 40px; align-items: center; margin-bottom: 60px;">
                 <h2 style="margin: 0; font-size: 2.5rem; font-weight: 800; color: #000;">Recent Projects</h2>
-                <div style="text-align: left;">
-                    <p style="margin: 0 0 8px 0; font-size: 1.1rem; color: var(--gray); line-height: 1.6;">Discover our proven track record of excellence</p>
-                    <p style="margin: 0; font-size: 1.1rem; color: var(--gray); line-height: 1.6; font-weight: 500;">in delivering exceptional security solutions.</p>
+                <div style="text-align: left; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <p style="margin: 0 0 8px 0; font-size: 1.1rem; color: var(--gray); line-height: 1.6;">Discover our proven track record of excellence</p>
+                        <p style="margin: 0; font-size: 1.1rem; color: var(--gray); line-height: 1.6; font-weight: 500;">in delivering exceptional security solutions.</p>
+                    </div>
+                    <button id="addProjectBtn" style="padding: 10px 20px; background: linear-gradient(135deg, #06f, #00d4ff); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; white-space: nowrap; margin-left: 20px;">+ Add Project</button>
                 </div>
             </div>
             
@@ -960,6 +963,7 @@
                 <h2 style="margin: 0 0 20px 0; font-size: 2.5rem; font-weight: 800; color: #000;">Recent Projects</h2>
                 <div style="text-align: center;">
                     <p style="margin: 0 0 8px 0; font-size: 1.1rem; color: var(--gray); line-height: 1.6;">Discover our proven track record of excellence</p>
+                    <button id="addProjectBtnMobile" style="padding: 10px 20px; background: linear-gradient(135deg, #06f, #00d4ff); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; margin-top: 15px;">+ Add Project</button>
                 </div>
             <div id="projects-grid-mobile" class="projects-grid" data-html="true">
                 <div class="project-card">
@@ -2773,6 +2777,221 @@
 
         // Reload animations on pageshow (back/forward cache)
         window.addEventListener('pageshow', initAnimations);
+    </script>
+
+    <!-- Project Upload Modal -->
+    <div id="projectModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); z-index: 3000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 40px; border-radius: 16px; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
+            <h3 style="margin: 0 0 20px 0; font-size: 1.5rem; font-weight: 700;">Add New Project</h3>
+            <form id="projectForm" style="display: flex; flex-direction: column; gap: 16px;">
+                <div style="display: flex; flex-direction: column;">
+                    <label style="margin-bottom: 8px; font-weight: 600; color: #333;">Project Title</label>
+                    <input id="projectTitle" type="text" placeholder="e.g., Residential Security Setup" style="padding: 12px; border: 1.5px solid #e0e0e0; border-radius: 8px; font-size: 1rem; font-family: inherit;" required>
+                </div>
+                <div style="display: flex; flex-direction: column;">
+                    <label style="margin-bottom: 8px; font-weight: 600; color: #333;">Project Description</label>
+                    <textarea id="projectDescription" placeholder="e.g., Complete camera installation for home security" style="padding: 12px; border: 1.5px solid #e0e0e0; border-radius: 8px; font-size: 1rem; font-family: inherit; resize: vertical; min-height: 80px;" required></textarea>
+                </div>
+                <div style="display: flex; flex-direction: column;">
+                    <label style="margin-bottom: 8px; font-weight: 600; color: #333;">Project Image</label>
+                    <input id="projectImage" type="file" accept="image/*" style="padding: 12px; border: 1.5px solid #e0e0e0; border-radius: 8px; font-size: 1rem;" required>
+                    <div id="imagePreview" style="margin-top: 12px;"></div>
+                </div>
+                <div style="display: flex; gap: 12px; margin-top: 10px;">
+                    <button type="submit" style="flex: 1; padding: 12px; background: linear-gradient(135deg, #06f, #00d4ff); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem;">Add Project</button>
+                    <button type="button" id="closeProjectModal" style="flex: 1; padding: 12px; background: #e0e0e0; color: #333; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 1rem;">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    // Project Management System
+    const ProjectManager = (() => {
+        const STORAGE_KEY = 'uploadedProjects';
+
+        function getStoredProjects() {
+            try {
+                const data = localStorage.getItem(STORAGE_KEY);
+                return data ? JSON.parse(data) : [];
+            } catch (e) {
+                console.error('Error reading projects:', e);
+                return [];
+            }
+        }
+
+        function saveProjects(projects) {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+            } catch (e) {
+                console.error('Error saving projects:', e);
+            }
+        }
+
+        function createProjectCard(project) {
+            const card = document.createElement('div');
+            card.className = 'project-card';
+            card.innerHTML = `
+                <div class="project-image">
+                    <img loading="lazy" src="${project.imageUrl}" alt="${project.title}" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div class="project-info">
+                    <h4>${project.title}</h4>
+                    <p>${project.description}</p>
+                </div>
+                ${isLoggedIn() ? `<button class="delete-project-btn" onclick="ProjectManager.deleteProject('${project.id}')" style="position: absolute; top: 10px; right: 10px; padding: 8px 12px; background: rgba(255, 0, 0, 0.9); color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem;">Delete</button>` : ''}
+            `;
+            return card;
+        }
+
+        function renderProjects() {
+            const projects = getStoredProjects();
+            const desktopGrid = document.getElementById('projects-grid-desktop');
+            const mobileGrid = document.getElementById('projects-grid-mobile');
+
+            // Keep original projects and add new ones at the end
+            const originalCards = Array.from(desktopGrid.querySelectorAll('.project-card:not([data-uploaded])')).slice(0, 6);
+            const uploadedCards = projects.map(project => {
+                const card = createProjectCard(project);
+                card.setAttribute('data-uploaded', 'true');
+                return card;
+            });
+
+            // Rebuild desktop grid
+            desktopGrid.innerHTML = '';
+            originalCards.forEach(card => desktopGrid.appendChild(card.cloneNode(true)));
+            uploadedCards.forEach(card => desktopGrid.appendChild(card));
+
+            // Rebuild mobile grid with same logic
+            const originalMobileCards = Array.from(mobileGrid.querySelectorAll('.project-card:not([data-uploaded])')).slice(0, 4);
+            mobileGrid.innerHTML = '';
+            originalMobileCards.forEach(card => mobileGrid.appendChild(card.cloneNode(true)));
+            uploadedCards.forEach(card => mobileGrid.appendChild(card.cloneNode(true)));
+        }
+
+        function deleteProject(projectId) {
+            const projects = getStoredProjects().filter(p => p.id !== projectId);
+            saveProjects(projects);
+            renderProjects();
+        }
+
+        async function uploadProject(title, description, imageFile) {
+            try {
+                // Upload image
+                const formData = new FormData();
+                formData.append('image', imageFile);
+
+                const uploadResponse = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!uploadResponse.ok) throw new Error('Image upload failed');
+                const uploadData = await uploadResponse.json();
+                const imageUrl = uploadData.url;
+
+                // Create project object
+                const project = {
+                    id: Date.now().toString(),
+                    title,
+                    description,
+                    imageUrl
+                };
+
+                // Save to localStorage
+                const projects = getStoredProjects();
+                projects.push(project);
+                saveProjects(projects);
+
+                // Render updated projects
+                renderProjects();
+                return true;
+            } catch (error) {
+                console.error('Error uploading project:', error);
+                alert('Failed to upload project: ' + error.message);
+                return false;
+            }
+        }
+
+        return {
+            uploadProject,
+            deleteProject,
+            renderProjects,
+            getStoredProjects
+        };
+    })();
+
+    // Helper function to check if logged in
+    function isLoggedIn() {
+        // Check if editor toolbar is visible (indicates logged in state)
+        const toolbar = document.getElementById('editorToolbar');
+        return toolbar && toolbar.style.display !== 'none';
+    }
+
+    // UI Event Handlers
+    document.addEventListener('DOMContentLoaded', () => {
+        const modal = document.getElementById('projectModal');
+        const addBtn = document.getElementById('addProjectBtn');
+        const addBtnMobile = document.getElementById('addProjectBtnMobile');
+        const closeBtn = document.getElementById('closeProjectModal');
+        const form = document.getElementById('projectForm');
+        const imageInput = document.getElementById('projectImage');
+        const imagePreview = document.getElementById('imagePreview');
+
+        // Show modal
+        if (addBtn) addBtn.addEventListener('click', () => modal.style.display = 'flex');
+        if (addBtnMobile) addBtnMobile.addEventListener('click', () => modal.style.display = 'flex');
+        
+        // Close modal
+        closeBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+            form.reset();
+            imagePreview.innerHTML = '';
+        });
+
+        // Image preview
+        imageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    imagePreview.innerHTML = `<img src="${event.target.result}" style="max-width: 100%; max-height: 200px; border-radius: 8px;">`;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = document.getElementById('projectTitle').value.trim();
+            const description = document.getElementById('projectDescription').value.trim();
+            const imageFile = imageInput.files[0];
+
+            if (!title || !description || !imageFile) {
+                alert('Please fill all fields');
+                return;
+            }
+
+            const submitBtn = form.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Uploading...';
+
+            const success = await ProjectManager.uploadProject(title, description, imageFile);
+            if (success) {
+                modal.style.display = 'none';
+                form.reset();
+                imagePreview.innerHTML = '';
+                alert('Project added successfully!');
+            }
+            
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Add Project';
+        });
+
+        // Load projects on page load
+        ProjectManager.renderProjects();
+    });
     </script>
 </body>
 </html>
