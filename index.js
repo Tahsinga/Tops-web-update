@@ -4,14 +4,14 @@ const path = require('path');
 const url = require('url');
 
 const PORT = process.env.PORT || 3000;
-const STATIC_DIR = path.join(__dirname, 'static');
+const ROOT_DIR = __dirname;
 
 const server = http.createServer((req, res) => {
 	const parsedUrl = url.parse(req.url, true);
-	let filePath = path.join(STATIC_DIR, parsedUrl.pathname);
+	let filePath = path.join(ROOT_DIR, parsedUrl.pathname);
 
 	// Prevent directory traversal
-	if (!filePath.startsWith(STATIC_DIR)) {
+	if (!filePath.startsWith(ROOT_DIR)) {
 		res.writeHead(403, { 'Content-Type': 'text/plain' });
 		res.end('Forbidden');
 		return;
@@ -19,7 +19,7 @@ const server = http.createServer((req, res) => {
 
 	// If requesting root, serve index.html
 	if (parsedUrl.pathname === '/') {
-		filePath = path.join(STATIC_DIR, 'index.html');
+		filePath = path.join(ROOT_DIR, 'index.html');
 	}
 
 	// Check if file exists
@@ -45,7 +45,9 @@ const server = http.createServer((req, res) => {
 			'.webp': 'image/webp',
 			'.ico': 'image/x-icon',
 			'.woff': 'font/woff',
-			'.woff2': 'font/woff2'
+			'.woff2': 'font/woff2',
+			'.ttf': 'font/ttf',
+			'.otf': 'font/otf'
 		};
 		const contentType = contentTypes[ext] || 'application/octet-stream';
 
