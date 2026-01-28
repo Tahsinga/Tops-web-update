@@ -3,13 +3,13 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Serve your existing static files (css, images, etc.)
+// Serve static files from /static
 app.use('/static', express.static(path.join(__dirname, 'static')));
 
-// Serve a simple index page (falls back to a text response if file missing)
+// Serve index.html if present
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'static', 'index.html'), err => {
-    if (err) res.send('Hello from Render 🚀');
+    if (err) res.type('txt').send('Hello from Tops Systems 🚀');
   });
 });
 

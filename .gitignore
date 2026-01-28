@@ -134,3 +134,10 @@ staticfiles/
 # IDE
 .vscode/
 .idea/
+
+# Node.js stuff:
+node_modules/
+npm-debug.log
+
+# macOS stuff:
+.DS_Store
