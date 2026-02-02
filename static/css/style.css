@@ -96,6 +96,74 @@ body {
         max-height: 200px; /* Limit height to fit better */
         object-fit: contain;
     }
+
+    /* Mobile: center Starlink section text and icons */
+    .mobile-container .section-title { text-align: center; padding: 0 16px; }
+    .mobile-container .section-title h2,
+    .mobile-container .section-title p { margin-left: auto; margin-right: auto; }
+    .mobile-container .starlink-features { display: grid; grid-template-columns: 1fr; gap: 18px; padding: 0 12px 20px; }
+    .mobile-container .starlink-features .feature-item { text-align: center; padding: 14px 8px; }
+    .mobile-container .starlink-features .feature-item i { display: block; margin: 0 auto 12px; }
+    .mobile-container .starlink-features .feature-item h3 { margin-bottom: 8px; }
+    .mobile-container .starlink-features .feature-item p { margin: 0 auto; max-width: 320px; color: #dfe7ea; }
+}
+
+/* Mobile: footer-panel styling to match desktop panel but optimized for small screens */
+@media (max-width: 768px) {
+    .footer .footer-panel {
+        background: linear-gradient(135deg, rgba(18,18,36,0.98) 0%, rgba(26,26,46,0.98) 100%);
+        border-radius: 12px;
+        padding: 18px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+        border: 1px solid rgba(255,255,255,0.04);
+        margin: 0 12px;
+    }
+
+    .footer .footer-panel .footer-content { gap: 18px; }
+    .footer .footer-panel .footer-section { background: transparent; padding: 8px 4px; }
+    .footer .footer-panel .footer-section h3 { text-align: center; color: #e9f6ff; }
+    .footer .footer-panel .footer-section p, .footer .footer-panel .footer-section li { color: #dfe7ea; text-align: center; }
+}
+
+/* Desktop footer: single panel styling matching 'Why Choose Us' visual */
+@media (min-width: 769px) {
+    .footer .footer-panel {
+        background: linear-gradient(135deg, rgba(18,18,36,0.98) 0%, rgba(26,26,46,0.98) 100%);
+        border-radius: 16px;
+        padding: 28px;
+        box-shadow: 0 18px 50px rgba(0,0,0,0.45);
+        border: 1px solid rgba(255,255,255,0.04);
+        margin-bottom: 18px;
+    }
+
+    .footer .footer-content {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 22px;
+        align-items: start;
+    }
+
+    .footer .footer-section { background: transparent; border: none; padding: 0; }
+    .footer .footer-section h3 { color: #e9f6ff; margin-bottom: 12px; }
+    .footer .footer-section p, .footer .footer-section li { color: #cfe9ff; }
+    .footer .footer-section ul { list-style: none; padding: 0; margin: 0; }
+}
+
+/* Ensure carousel images fill mobile slide height (override generic mobile img rules) */
+@media (max-width: 768px) {
+    .mobile-container .carousel-wrapper img,
+    .mobile-container .carousel-track img {
+        display: block !important;
+        width: 100% !important;
+        height: 100% !important;
+        max-height: none !important;
+        object-fit: cover !important;
+    }
+    /* Also ensure the individual slide containers allow full height */
+    .mobile-container .carousel-track > div {
+        height: 100% !important;
+        flex: 0 0 100% !important;
+    }
 }
 
 /* Info Bar */
@@ -398,6 +466,117 @@ body {
 
 .logo h1 {
     font-size: 1.4rem;
+
+/* Footer card theme: use for all footer boxes */
+.footer-card {
+    background: linear-gradient(135deg, rgba(26,26,46,0.95) 0%, rgba(18,28,48,0.92) 100%);
+    color: #dfe7ea;
+    border-radius: 14px;
+    padding: 20px;
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+    transition: transform 0.28s ease, box-shadow 0.28s ease, border-color 0.28s ease;
+}
+.footer-card h3,
+.footer-card h4 {
+    color: #e9f6ff;
+    margin-bottom: 10px;
+}
+.footer-card a { color: #d6e9ff; }
+.footer-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.45);
+    border-color: rgba(0, 212, 255, 0.12);
+}
+
+/* small variant for tighter footer items */
+.footer-card--compact { padding: 12px; border-radius: 12px; }
+
+/* Mobile footer polish: spacing, centering, link and icon styles */
+@media (max-width: 768px) {
+    .footer {
+        padding: 20px 0 30px;
+        background: var(--secondary);
+        color: #e6f3ff;
+    }
+
+    .footer .mobile-container {
+        padding: 0 16px;
+    }
+
+    .footer .footer-content {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 20px;
+        align-items: start;
+    }
+
+    .footer-card {
+        padding: 18px;
+        border-radius: 14px;
+    }
+
+    .footer .footer-section h3 {
+        font-size: 1.15rem;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .footer .footer-section p { text-align: center; color: #d6e9ff; }
+
+    .footer .footer-section ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: grid;
+        gap: 8px;
+        justify-items: center;
+    }
+
+    .footer .footer-section ul li a {
+        color: #d6e9ff;
+        text-decoration: none;
+        padding: 6px 8px;
+        display: inline-block;
+        width: 100%;
+        text-align: center;
+        border-radius: 8px;
+        transition: background 0.2s ease;
+    }
+
+    .footer .footer-section ul li a:hover {
+        background: rgba(255,255,255,0.03);
+    }
+
+    .footer .social-links { display: flex; justify-content: center; gap: 12px; }
+    .footer .social-links a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        background: rgba(255,255,255,0.03);
+        color: #d6e9ff;
+        font-size: 1.05rem;
+        transition: transform 0.18s ease, background 0.18s ease;
+    }
+    .footer .social-links a:hover { transform: translateY(-4px); background: rgba(255,255,255,0.06); }
+
+    /* Highlights: make stacked, full-width and tighter */
+    .footer .footer-grid { grid-template-columns: 1fr; gap: 14px; }
+    .footer .footer-grid .footer-card--compact { border-width: 1px; }
+
+    .copyright.footer-card {
+        text-align: center;
+        font-size: 0.95rem;
+        padding: 12px 14px;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        color: #cfe9ff;
+    }
+}
     font-weight: 700;
     background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
     -webkit-background-clip: text;
